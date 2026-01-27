@@ -1,46 +1,73 @@
-import type {ExtensionConfig, StoredPreset, XkpasswdConfig} from '../../core/config';
+import type {ExtensionConfig, XkpasswdConfig} from '../../core/config';
 
-const numPasswordsInput = document.querySelector<HTMLInputElement>('#num-passwords')!;
-const numWordsInput = document.querySelector<HTMLInputElement>('#num-words')!;
-const wordMinInput = document.querySelector<HTMLInputElement>('#word-min')!;
-const wordMaxInput = document.querySelector<HTMLInputElement>('#word-max')!;
-const caseTransformSelect = document.querySelector<HTMLSelectElement>('#case-transform')!;
-const separatorTypeSelect = document.querySelector<HTMLSelectElement>('#separator-type')!;
-const separatorCharacterInput = document.querySelector<HTMLInputElement>('#separator-character')!;
-const separatorAlphabetInput = document.querySelector<HTMLInputElement>('#separator-alphabet')!;
-const paddingTypeSelect = document.querySelector<HTMLSelectElement>('#padding-type')!;
-const padLengthInput = document.querySelector<HTMLInputElement>('#pad-length')!;
-const digitsBeforeInput = document.querySelector<HTMLInputElement>('#digits-before')!;
-const digitsAfterInput = document.querySelector<HTMLInputElement>('#digits-after')!;
-const paddingBeforeInput = document.querySelector<HTMLInputElement>('#padding-before')!;
-const paddingAfterInput = document.querySelector<HTMLInputElement>('#padding-after')!;
-const paddingCharTypeSelect = document.querySelector<HTMLSelectElement>('#padding-char-type')!;
-const paddingCharInput = document.querySelector<HTMLInputElement>('#padding-char')!;
-const paddingAlphabetInput = document.querySelector<HTMLInputElement>('#padding-alphabet')!;
-const symbolAlphabetInput = document.querySelector<HTMLInputElement>('#symbol-alphabet')!;
-const allowAccentsInput = document.querySelector<HTMLInputElement>('#allow-accents')!;
-const enableInsertionInput = document.querySelector<HTMLInputElement>('#enable-insertion')!;
-const dictionarySelect = document.querySelector<HTMLSelectElement>('#dictionary')!;
-const presetSelect = document.querySelector<HTMLSelectElement>('#preset')!;
-const presetDescription = document.querySelector<HTMLParagraphElement>('#preset-description')!;
-const presetExportSelect = document.querySelector<HTMLSelectElement>('#preset-export')!;
-const presetJsonArea = document.querySelector<HTMLTextAreaElement>('#preset-json')!;
-const exportPresetButton = document.querySelector<HTMLButtonElement>('#export-preset')!;
-const downloadPresetButton = document.querySelector<HTMLButtonElement>('#download-preset')!;
-const presetFileInput = document.querySelector<HTMLInputElement>('#preset-file')!;
-const presetImportArea = document.querySelector<HTMLTextAreaElement>('#preset-import')!;
-const importPresetButton = document.querySelector<HTMLButtonElement>('#import-preset')!;
-const clearPresetButton = document.querySelector<HTMLButtonElement>('#clear-preset')!;
-const presetStatus = document.querySelector<HTMLParagraphElement>('#preset-status')!;
-const managePresetsButton = document.querySelector<HTMLButtonElement>('#manage-presets')!;
-const generateButton = document.querySelector<HTMLButtonElement>('#generate')!;
-const copyAllButton = document.querySelector<HTMLButtonElement>('#copy-all')!;
-const passwordList = document.querySelector<HTMLUListElement>('#password-list')!;
-const emptyState = document.querySelector<HTMLParagraphElement>('#empty-state')!;
-const validationText = document.querySelector<HTMLParagraphElement>('#validation')!;
-const toast = document.querySelector<HTMLDivElement>('#toast')!;
-const optionsButton = document.querySelector<HTMLButtonElement>('#open-options')!;
+const numPasswordsInput = document.querySelector<HTMLInputElement>('#num-passwords');
+const numWordsInput = document.querySelector<HTMLInputElement>('#num-words');
+const wordMinInput = document.querySelector<HTMLInputElement>('#word-min');
+const wordMaxInput = document.querySelector<HTMLInputElement>('#word-max');
+const caseTransformSelect = document.querySelector<HTMLSelectElement>('#case-transform');
+const separatorTypeSelect = document.querySelector<HTMLSelectElement>('#separator-type');
+const separatorCharacterInput = document.querySelector<HTMLInputElement>('#separator-character');
+const separatorAlphabetInput = document.querySelector<HTMLInputElement>('#separator-alphabet');
+const paddingTypeSelect = document.querySelector<HTMLSelectElement>('#padding-type');
+const padLengthInput = document.querySelector<HTMLInputElement>('#pad-length');
+const digitsBeforeInput = document.querySelector<HTMLInputElement>('#digits-before');
+const digitsAfterInput = document.querySelector<HTMLInputElement>('#digits-after');
+const paddingBeforeInput = document.querySelector<HTMLInputElement>('#padding-before');
+const paddingAfterInput = document.querySelector<HTMLInputElement>('#padding-after');
+const paddingCharTypeSelect = document.querySelector<HTMLSelectElement>('#padding-char-type');
+const paddingCharInput = document.querySelector<HTMLInputElement>('#padding-char');
+const paddingAlphabetInput = document.querySelector<HTMLInputElement>('#padding-alphabet');
+const symbolAlphabetInput = document.querySelector<HTMLInputElement>('#symbol-alphabet');
+const allowAccentsInput = document.querySelector<HTMLInputElement>('#allow-accents');
+const enableInsertionInput = document.querySelector<HTMLInputElement>('#enable-insertion');
+const dictionarySelect = document.querySelector<HTMLSelectElement>('#dictionary');
+const presetSelect = document.querySelector<HTMLSelectElement>('#preset');
+const presetDescription = document.querySelector<HTMLParagraphElement>('#preset-description');
+const managePresetsButton = document.querySelector<HTMLButtonElement>('#manage-presets');
+const generateButton = document.querySelector<HTMLButtonElement>('#generate');
+const copyAllButton = document.querySelector<HTMLButtonElement>('#copy-all');
+const passwordList = document.querySelector<HTMLUListElement>('#password-list');
+const emptyState = document.querySelector<HTMLParagraphElement>('#empty-state');
+const validationText = document.querySelector<HTMLParagraphElement>('#validation');
+const toast = document.querySelector<HTMLDivElement>('#toast');
+const optionsButton = document.querySelector<HTMLButtonElement>('#open-options');
 const conditionalFields = Array.from(document.querySelectorAll<HTMLElement>('[data-show-when]'));
+
+if (
+  !numPasswordsInput ||
+  !numWordsInput ||
+  !wordMinInput ||
+  !wordMaxInput ||
+  !caseTransformSelect ||
+  !separatorTypeSelect ||
+  !separatorCharacterInput ||
+  !separatorAlphabetInput ||
+  !paddingTypeSelect ||
+  !padLengthInput ||
+  !digitsBeforeInput ||
+  !digitsAfterInput ||
+  !paddingBeforeInput ||
+  !paddingAfterInput ||
+  !paddingCharTypeSelect ||
+  !paddingCharInput ||
+  !paddingAlphabetInput ||
+  !symbolAlphabetInput ||
+  !allowAccentsInput ||
+  !enableInsertionInput ||
+  !dictionarySelect ||
+  !presetSelect ||
+  !presetDescription ||
+  !managePresetsButton ||
+  !generateButton ||
+  !copyAllButton ||
+  !passwordList ||
+  !emptyState ||
+  !validationText ||
+  !toast ||
+  !optionsButton
+) {
+  throw new Error('Popup elements missing');
+}
 
 const runtime = chrome.runtime;
 
@@ -51,8 +78,6 @@ async function sendMessage<T>(type: string, payload?: Record<string, unknown>): 
 let currentConfig: ExtensionConfig | null = null;
 let activeConfig: XkpasswdConfig | null = null;
 const presetDescriptions = new Map<string, string>();
-let builtInPresets: StoredPreset[] = [];
-let customPresets: StoredPreset[] = [];
 
 function showToast(message: string) {
   toast.textContent = message;
@@ -151,12 +176,10 @@ function updateInputsFromConfig(config: ExtensionConfig, nextActiveConfig: Xkpas
 
 async function loadPresets() {
   const response = await sendMessage<{
-    builtIn: StoredPreset[];
-    custom: StoredPreset[];
+    builtIn: Array<{id: string; name: string; description: string}>;
+    custom: Array<{id: string; name: string; description: string}>;
     activePresetId: string;
   }>('GET_PRESETS');
-  builtInPresets = response.builtIn;
-  customPresets = response.custom;
   presetSelect.innerHTML = '';
   presetDescriptions.clear();
 
@@ -189,19 +212,6 @@ async function loadPresets() {
 
   presetSelect.value = response.activePresetId;
   presetDescription.textContent = presetDescriptions.get(response.activePresetId) ?? '';
-  populatePresetExportSelect();
-  presetExportSelect.value = response.activePresetId;
-}
-
-function populatePresetExportSelect() {
-  presetExportSelect.innerHTML = '';
-  const presets = getPresetList();
-  presets.forEach(preset => {
-    const option = document.createElement('option');
-    option.value = preset.id;
-    option.textContent = preset.name;
-    presetExportSelect.appendChild(option);
-  });
 }
 
 async function refreshConfig() {
@@ -259,31 +269,6 @@ function buildCustomConfig(baseConfig: XkpasswdConfig): XkpasswdConfig {
     symbol_alphabet: symbolAlphabetInput.value.trim(),
     allow_accents: allowAccentsInput.checked ? 1 : 0,
   };
-}
-
-function getPresetList(): StoredPreset[] {
-  if (!currentConfig) {
-    return [...builtInPresets, ...customPresets];
-  }
-  const customPlaceholder: StoredPreset = {
-    id: 'CUSTOM',
-    name: 'Custom (unsaved)',
-    description: 'Current unsaved configuration',
-    config: currentConfig.customConfig,
-  };
-  return [...builtInPresets, ...customPresets, customPlaceholder];
-}
-
-function getPresetById(id: string): StoredPreset | undefined {
-  if (id === 'CUSTOM' && currentConfig) {
-    return {
-      id: 'CUSTOM',
-      name: 'Custom (unsaved)',
-      description: 'Current unsaved configuration',
-      config: currentConfig.customConfig,
-    };
-  }
-  return getPresetList().find(preset => preset.id === id);
 }
 
 async function saveQuickSettings() {
@@ -368,78 +353,6 @@ presetSelect.addEventListener('change', async () => {
 });
 
 generateButton.addEventListener('click', generate);
-
-exportPresetButton.addEventListener('click', () => {
-  const preset = getPresetById(presetExportSelect.value);
-  if (!preset) {
-    presetStatus.textContent = 'Select a preset to export.';
-    return;
-  }
-  presetJsonArea.value = JSON.stringify(preset, null, 2);
-  presetStatus.textContent = `Exported “${preset.name}”.`;
-});
-
-downloadPresetButton.addEventListener('click', () => {
-  if (!presetJsonArea.value.trim()) {
-    presetStatus.textContent = 'Export a preset first to download.';
-    return;
-  }
-  const blob = new Blob([presetJsonArea.value], {type: 'application/json'});
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'xkpasswd-preset.json';
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-});
-
-presetFileInput.addEventListener('change', async () => {
-  const file = presetFileInput.files?.[0];
-  if (!file) {
-    return;
-  }
-  presetImportArea.value = await file.text();
-});
-
-clearPresetButton.addEventListener('click', () => {
-  presetImportArea.value = '';
-  presetFileInput.value = '';
-  presetStatus.textContent = '';
-});
-
-importPresetButton.addEventListener('click', async () => {
-  if (!currentConfig) {
-    return;
-  }
-  try {
-    const parsed = JSON.parse(presetImportArea.value) as StoredPreset;
-    if (!parsed?.config || !parsed?.name) {
-      presetStatus.textContent = 'Preset JSON must include name and config.';
-      return;
-    }
-    const nextPreset: StoredPreset = {
-      id: parsed.id?.startsWith('custom-') ? parsed.id : `custom-${Date.now()}`,
-      name: parsed.name,
-      description: parsed.description ?? 'Imported preset',
-      config: parsed.config,
-    };
-    const updated: ExtensionConfig = {
-      ...currentConfig,
-      customPresets: [...currentConfig.customPresets, nextPreset],
-      activePresetId: nextPreset.id,
-    };
-    await sendMessage('SET_CONFIG', {config: updated});
-    presetStatus.textContent = `Imported “${nextPreset.name}”.`;
-    presetImportArea.value = '';
-    presetFileInput.value = '';
-    await loadPresets();
-    await refreshConfig();
-  } catch (error) {
-    presetStatus.textContent = 'Invalid preset JSON.';
-  }
-});
 
 copyAllButton.addEventListener('click', async () => {
   const passwords = Array.from(passwordList.querySelectorAll('.password-text')).map(node => node.textContent ?? '');

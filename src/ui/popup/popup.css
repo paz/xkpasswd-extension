@@ -121,18 +121,6 @@ body {
   gap: 10px;
 }
 
-.split {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-}
-
-.stack {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 label {
   display: flex;
   flex-direction: column;
@@ -148,17 +136,6 @@ select {
   border-radius: 8px;
   padding: 8px 10px;
   font-size: 13px;
-}
-
-textarea {
-  background: var(--surface-muted);
-  color: inherit;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 10px;
-  font-size: 12px;
-  font-family: "SF Mono", ui-monospace, monospace;
-  resize: vertical;
 }
 
 input:focus,
@@ -209,16 +186,6 @@ summary:focus {
   border: none;
   padding: 0;
   color: var(--accent);
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.file-input input {
-  margin-top: 6px;
 }
 
 .preset-meta {
