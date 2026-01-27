@@ -49,10 +49,10 @@ function loadBuiltinPresets(): StoredPreset[] {
   if (cachedBuiltinPresets) {
     return cachedBuiltinPresets;
   }
-  const presets = new Presets();
+  const presets = new Presets(undefined);
   cachedBuiltinPresets = presets.getPresets().map(name => {
     const preset = new Presets(name);
-    const current = preset.getCurrent();
+    const current = preset.getCurrent() as {config: XkpasswdConfig};
     return {
       id: name,
       name,
@@ -117,7 +117,7 @@ export async function generatePasswords(extensionConfig: ExtensionConfig): Promi
     sharedGenerator.setCustomPreset(activeConfig);
   }
 
-  const {passwords} = sharedGenerator.generatePassword(extensionConfig.numPasswords);
+  const {passwords} = sharedGenerator.generatePassword(extensionConfig.numPasswords) as {passwords: string[]};
   return passwords;
 }
 

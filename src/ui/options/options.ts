@@ -1,69 +1,55 @@
 import type {ExtensionConfig, StoredPreset, XkpasswdConfig} from '../../core/config';
 
-const presetSelect = document.querySelector<HTMLSelectElement>('#preset-select');
-const applyPresetButton = document.querySelector<HTMLButtonElement>('#apply-preset');
-const presetNameInput = document.querySelector<HTMLInputElement>('#preset-name');
-const presetDescriptionInput = document.querySelector<HTMLInputElement>('#preset-description');
-const savePresetButton = document.querySelector<HTMLButtonElement>('#save-preset');
-const customPresetSelect = document.querySelector<HTMLSelectElement>('#custom-preset-select');
-const renamePresetInput = document.querySelector<HTMLInputElement>('#rename-preset');
-const renameButton = document.querySelector<HTMLButtonElement>('#rename-button');
-const deleteButton = document.querySelector<HTMLButtonElement>('#delete-button');
-const presetExportSelect = document.querySelector<HTMLSelectElement>('#preset-export-select');
-const presetJsonArea = document.querySelector<HTMLTextAreaElement>('#preset-json');
-const exportPresetButton = document.querySelector<HTMLButtonElement>('#export-preset');
-const downloadPresetButton = document.querySelector<HTMLButtonElement>('#download-preset');
-const presetFileInput = document.querySelector<HTMLInputElement>('#preset-file');
-const presetImportArea = document.querySelector<HTMLTextAreaElement>('#preset-import');
-const importPresetButton = document.querySelector<HTMLButtonElement>('#import-preset');
-const clearPresetButton = document.querySelector<HTMLButtonElement>('#clear-preset');
-const presetStatus = document.querySelector<HTMLParagraphElement>('#preset-status');
+const presetSelect = document.querySelector<HTMLSelectElement>('#preset-select')!;
+const applyPresetButton = document.querySelector<HTMLButtonElement>('#apply-preset')!;
+const presetNameInput = document.querySelector<HTMLInputElement>('#preset-name')!;
+const presetDescriptionInput = document.querySelector<HTMLInputElement>('#preset-description')!;
+const savePresetButton = document.querySelector<HTMLButtonElement>('#save-preset')!;
+const customPresetSelect = document.querySelector<HTMLSelectElement>('#custom-preset-select')!;
+const renamePresetInput = document.querySelector<HTMLInputElement>('#rename-preset')!;
+const renameButton = document.querySelector<HTMLButtonElement>('#rename-button')!;
+const deleteButton = document.querySelector<HTMLButtonElement>('#delete-button')!;
+const presetExportSelect = document.querySelector<HTMLSelectElement>('#preset-export-select')!;
+const presetJsonArea = document.querySelector<HTMLTextAreaElement>('#preset-json')!;
+const exportPresetButton = document.querySelector<HTMLButtonElement>('#export-preset')!;
+const downloadPresetButton = document.querySelector<HTMLButtonElement>('#download-preset')!;
+const presetFileInput = document.querySelector<HTMLInputElement>('#preset-file')!;
+const presetImportArea = document.querySelector<HTMLTextAreaElement>('#preset-import')!;
+const importPresetButton = document.querySelector<HTMLButtonElement>('#import-preset')!;
+const clearPresetButton = document.querySelector<HTMLButtonElement>('#clear-preset')!;
+const presetStatus = document.querySelector<HTMLParagraphElement>('#preset-status')!;
 
-const numPasswordsInput = document.querySelector<HTMLInputElement>('#num-passwords');
-const numWordsInput = document.querySelector<HTMLInputElement>('#num-words');
-const wordMinInput = document.querySelector<HTMLInputElement>('#word-min');
-const wordMaxInput = document.querySelector<HTMLInputElement>('#word-max');
-const caseTransformSelect = document.querySelector<HTMLSelectElement>('#case-transform');
-const separatorTypeSelect = document.querySelector<HTMLSelectElement>('#separator-type');
-const separatorCharInput = document.querySelector<HTMLInputElement>('#separator-char');
-const paddingTypeSelect = document.querySelector<HTMLSelectElement>('#padding-type');
-const padLengthInput = document.querySelector<HTMLInputElement>('#pad-length');
-const paddingCharTypeSelect = document.querySelector<HTMLSelectElement>('#padding-char-type');
-const paddingCharInput = document.querySelector<HTMLInputElement>('#padding-char');
-const digitsBeforeInput = document.querySelector<HTMLInputElement>('#digits-before');
-const digitsAfterInput = document.querySelector<HTMLInputElement>('#digits-after');
-const paddingBeforeInput = document.querySelector<HTMLInputElement>('#padding-before');
-const paddingAfterInput = document.querySelector<HTMLInputElement>('#padding-after');
-const symbolAlphabetInput = document.querySelector<HTMLInputElement>('#symbol-alphabet');
-const separatorAlphabetInput = document.querySelector<HTMLInputElement>('#separator-alphabet');
-const paddingAlphabetInput = document.querySelector<HTMLInputElement>('#padding-alphabet');
-const allowAccentsInput = document.querySelector<HTMLInputElement>('#allow-accents');
-const enableInsertionInput = document.querySelector<HTMLInputElement>('#enable-insertion');
-const dictionarySelect = document.querySelector<HTMLSelectElement>('#dictionary');
-const dictionaryNote = document.querySelector<HTMLParagraphElement>('#dictionary-note');
+const numPasswordsInput = document.querySelector<HTMLInputElement>('#num-passwords')!;
+const numWordsInput = document.querySelector<HTMLInputElement>('#num-words')!;
+const wordMinInput = document.querySelector<HTMLInputElement>('#word-min')!;
+const wordMaxInput = document.querySelector<HTMLInputElement>('#word-max')!;
+const caseTransformSelect = document.querySelector<HTMLSelectElement>('#case-transform')!;
+const separatorTypeSelect = document.querySelector<HTMLSelectElement>('#separator-type')!;
+const separatorCharInput = document.querySelector<HTMLInputElement>('#separator-char')!;
+const paddingTypeSelect = document.querySelector<HTMLSelectElement>('#padding-type')!;
+const padLengthInput = document.querySelector<HTMLInputElement>('#pad-length')!;
+const paddingCharTypeSelect = document.querySelector<HTMLSelectElement>('#padding-char-type')!;
+const paddingCharInput = document.querySelector<HTMLInputElement>('#padding-char')!;
+const digitsBeforeInput = document.querySelector<HTMLInputElement>('#digits-before')!;
+const digitsAfterInput = document.querySelector<HTMLInputElement>('#digits-after')!;
+const paddingBeforeInput = document.querySelector<HTMLInputElement>('#padding-before')!;
+const paddingAfterInput = document.querySelector<HTMLInputElement>('#padding-after')!;
+const symbolAlphabetInput = document.querySelector<HTMLInputElement>('#symbol-alphabet')!;
+const separatorAlphabetInput = document.querySelector<HTMLInputElement>('#separator-alphabet')!;
+const paddingAlphabetInput = document.querySelector<HTMLInputElement>('#padding-alphabet')!;
+const allowAccentsInput = document.querySelector<HTMLInputElement>('#allow-accents')!;
+const enableInsertionInput = document.querySelector<HTMLInputElement>('#enable-insertion')!;
+const dictionarySelect = document.querySelector<HTMLSelectElement>('#dictionary')!;
+const dictionaryNote = document.querySelector<HTMLParagraphElement>('#dictionary-note')!;
 
-const saveConfigButton = document.querySelector<HTMLButtonElement>('#save-config');
-const resetConfigButton = document.querySelector<HTMLButtonElement>('#reset-config');
-const validationText = document.querySelector<HTMLParagraphElement>('#validation');
+const saveConfigButton = document.querySelector<HTMLButtonElement>('#save-config')!;
+const resetConfigButton = document.querySelector<HTMLButtonElement>('#reset-config')!;
+const validationText = document.querySelector<HTMLParagraphElement>('#validation')!;
 
-const configJsonArea = document.querySelector<HTMLTextAreaElement>('#config-json');
-const exportButton = document.querySelector<HTMLButtonElement>('#export-config');
-const importButton = document.querySelector<HTMLButtonElement>('#import-config');
-const importStatus = document.querySelector<HTMLParagraphElement>('#import-status');
-
-if (!presetSelect || !applyPresetButton || !presetNameInput || !presetDescriptionInput || !savePresetButton ||
-  !customPresetSelect || !renamePresetInput || !renameButton || !deleteButton ||
-  !presetExportSelect || !presetJsonArea || !exportPresetButton || !downloadPresetButton ||
-  !presetFileInput || !presetImportArea || !importPresetButton || !clearPresetButton || !presetStatus ||
-  !numPasswordsInput || !numWordsInput || !wordMinInput || !wordMaxInput || !caseTransformSelect ||
-  !separatorTypeSelect || !separatorCharInput || !paddingTypeSelect || !padLengthInput ||
-  !paddingCharTypeSelect || !paddingCharInput || !digitsBeforeInput || !digitsAfterInput ||
-  !paddingBeforeInput || !paddingAfterInput || !symbolAlphabetInput || !separatorAlphabetInput ||
-  !paddingAlphabetInput || !allowAccentsInput || !enableInsertionInput || !dictionarySelect ||
-  !dictionaryNote || !saveConfigButton || !resetConfigButton || !validationText ||
-  !configJsonArea || !exportButton || !importButton || !importStatus) {
-  throw new Error('Options elements missing');
-}
+const configJsonArea = document.querySelector<HTMLTextAreaElement>('#config-json')!;
+const exportButton = document.querySelector<HTMLButtonElement>('#export-config')!;
+const importButton = document.querySelector<HTMLButtonElement>('#import-config')!;
+const importStatus = document.querySelector<HTMLParagraphElement>('#import-status')!;
 
 const runtime = chrome.runtime;
 

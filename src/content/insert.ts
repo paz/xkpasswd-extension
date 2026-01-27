@@ -49,7 +49,7 @@ function insertText(text: string) {
   }
 }
 
-chrome.runtime.onMessage.addListener(message => {
+chrome.runtime.onMessage.addListener((message: {type?: string; text?: string}) => {
   if (message?.type === 'INSERT' && typeof message.text === 'string') {
     insertText(message.text);
   }
