@@ -9,6 +9,15 @@ const customPresetSelect = document.querySelector<HTMLSelectElement>('#custom-pr
 const renamePresetInput = document.querySelector<HTMLInputElement>('#rename-preset');
 const renameButton = document.querySelector<HTMLButtonElement>('#rename-button');
 const deleteButton = document.querySelector<HTMLButtonElement>('#delete-button');
+const presetExportSelect = document.querySelector<HTMLSelectElement>('#preset-export-select');
+const presetJsonArea = document.querySelector<HTMLTextAreaElement>('#preset-json');
+const exportPresetButton = document.querySelector<HTMLButtonElement>('#export-preset');
+const downloadPresetButton = document.querySelector<HTMLButtonElement>('#download-preset');
+const presetFileInput = document.querySelector<HTMLInputElement>('#preset-file');
+const presetImportArea = document.querySelector<HTMLTextAreaElement>('#preset-import');
+const importPresetButton = document.querySelector<HTMLButtonElement>('#import-preset');
+const clearPresetButton = document.querySelector<HTMLButtonElement>('#clear-preset');
+const presetStatus = document.querySelector<HTMLParagraphElement>('#preset-status');
 
 const numPasswordsInput = document.querySelector<HTMLInputElement>('#num-passwords');
 const numWordsInput = document.querySelector<HTMLInputElement>('#num-words');
@@ -44,6 +53,8 @@ const importStatus = document.querySelector<HTMLParagraphElement>('#import-statu
 
 if (!presetSelect || !applyPresetButton || !presetNameInput || !presetDescriptionInput || !savePresetButton ||
   !customPresetSelect || !renamePresetInput || !renameButton || !deleteButton ||
+  !presetExportSelect || !presetJsonArea || !exportPresetButton || !downloadPresetButton ||
+  !presetFileInput || !presetImportArea || !importPresetButton || !clearPresetButton || !presetStatus ||
   !numPasswordsInput || !numWordsInput || !wordMinInput || !wordMaxInput || !caseTransformSelect ||
   !separatorTypeSelect || !separatorCharInput || !paddingTypeSelect || !padLengthInput ||
   !paddingCharTypeSelect || !paddingCharInput || !digitsBeforeInput || !digitsAfterInput ||
@@ -98,6 +109,26 @@ function populatePresetSelect(activePresetId: string, customPresets: StoredPrese
     option.textContent = preset.name;
     customPresetSelect.appendChild(option);
   });
+
+  presetExportSelect.innerHTML = '';
+  const exportGroup = document.createElement('optgroup');
+  exportGroup.label = 'Built-in';
+  builtInPresets.forEach(preset => {
+    const option = document.createElement('option');
+    option.value = preset.id;
+    option.textContent = preset.name;
+    exportGroup.appendChild(option);
+  });
+  presetExportSelect.appendChild(exportGroup);
+  const exportCustomGroup = document.createElement('optgroup');
+  exportCustomGroup.label = 'Custom';
+  customPresets.forEach(preset => {
+    const option = document.createElement('option');
+    option.value = preset.id;
+    option.textContent = preset.name;
+    exportCustomGroup.appendChild(option);
+  });
+  presetExportSelect.appendChild(exportCustomGroup);
 }
 
 function populateDictionarySelect(dictionaries: Array<{id: string; name: string}>, activeId: string) {
@@ -303,6 +334,93 @@ importButton.addEventListener('click', async () => {
     await loadConfig();
   } catch (error) {
     importStatus.textContent = 'Invalid JSON configuration.';
+  }
+});
+
+function getPresetById(id: string): StoredPreset | undefined {
+  if (id === 'CUSTOM') {
+    return currentConfig
+      ? {
+          id: 'CUSTOM',
+          name: 'Custom (unsaved)',
+          description: 'Current unsaved configuration',
+          config: currentConfig.customConfig,
+        }
+      : undefined;
+  }
+  return [...builtInPresets, ...(currentConfig?.customPresets ?? [])].find(preset => preset.id === id);
+}
+
+exportPresetButton.addEventListener('click', () => {
+  if (!currentConfig) {
+    return;
+  }
+  const preset = getPresetById(presetExportSelect.value);
+  if (!preset) {
+    presetStatus.textContent = 'Select a preset to export.';
+    return;
+  }
+  presetJsonArea.value = JSON.stringify(preset, null, 2);
+  presetStatus.textContent = `Exported “${preset.name}”.`;
+});
+
+downloadPresetButton.addEventListener('click', () => {
+  if (!presetJsonArea.value.trim()) {
+    presetStatus.textContent = 'Export a preset first to download.';
+    return;
+  }
+  const blob = new Blob([presetJsonArea.value], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'xkpasswd-preset.json';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+});
+
+presetFileInput.addEventListener('change', async () => {
+  const file = presetFileInput.files?.[0];
+  if (!file) {
+    return;
+  }
+  presetImportArea.value = await file.text();
+});
+
+clearPresetButton.addEventListener('click', () => {
+  presetImportArea.value = '';
+  presetFileInput.value = '';
+  presetStatus.textContent = '';
+});
+
+importPresetButton.addEventListener('click', async () => {
+  if (!currentConfig) {
+    return;
+  }
+  try {
+    const parsed = JSON.parse(presetImportArea.value) as StoredPreset;
+    if (!parsed?.config || !parsed?.name) {
+      presetStatus.textContent = 'Preset JSON must include name and config.';
+      return;
+    }
+    const nextPreset: StoredPreset = {
+      id: parsed.id?.startsWith('custom-') ? parsed.id : `custom-${Date.now()}`,
+      name: parsed.name,
+      description: parsed.description ?? 'Imported preset',
+      config: parsed.config,
+    };
+    const updated = {
+      ...currentConfig,
+      customPresets: [...currentConfig.customPresets, nextPreset],
+      activePresetId: nextPreset.id,
+    };
+    await sendMessage('SET_CONFIG', {config: updated});
+    presetStatus.textContent = `Imported “${nextPreset.name}”.`;
+    await loadPresets();
+    await loadConfig();
+  } catch (error) {
+    presetStatus.textContent = 'Invalid preset JSON.';
   }
 });
 
