@@ -174,6 +174,10 @@ optionsButton.addEventListener('click', () => {
   runtime.openOptionsPage();
 });
 
-await loadPresets();
-await refreshConfig();
-await generate();
+async function initializePopup() {
+  await loadPresets();
+  await refreshConfig();
+  await generate();
+}
+
+void initializePopup();

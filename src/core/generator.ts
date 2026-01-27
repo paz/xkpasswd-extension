@@ -41,9 +41,16 @@ function findCustomPreset(
   return customPresets.find(preset => preset.id === id);
 }
 
-export function getBuiltinPresets(): StoredPreset[] {
+let cachedBuiltinPresets: StoredPreset[] | null = null;
+let cachedBuiltinPresetIds: Set<string> | null = null;
+const sharedGenerator = new XKPasswd();
+
+function loadBuiltinPresets(): StoredPreset[] {
+  if (cachedBuiltinPresets) {
+    return cachedBuiltinPresets;
+  }
   const presets = new Presets();
-  return presets.getPresets().map(name => {
+  cachedBuiltinPresets = presets.getPresets().map(name => {
     const preset = new Presets(name);
     const current = preset.getCurrent();
     return {
@@ -53,6 +60,12 @@ export function getBuiltinPresets(): StoredPreset[] {
       config: toXkpasswdConfig(current.config),
     };
   });
+  cachedBuiltinPresetIds = new Set(cachedBuiltinPresets.map(preset => preset.id));
+  return cachedBuiltinPresets;
+}
+
+export function getBuiltinPresets(): StoredPreset[] {
+  return loadBuiltinPresets();
 }
 
 export function getDictionaries() {
@@ -95,17 +108,16 @@ export function validateCfg(config: XkpasswdConfig): {ok: boolean; errors: strin
 }
 
 export async function generatePasswords(extensionConfig: ExtensionConfig): Promise<string[]> {
-  const xkpasswd = new XKPasswd();
-  const builtInNames = new Set(new Presets().getPresets());
+  const builtInNames = cachedBuiltinPresetIds ?? new Set(loadBuiltinPresets().map(preset => preset.id));
 
   if (builtInNames.has(extensionConfig.activePresetId)) {
-    xkpasswd.setPreset(extensionConfig.activePresetId);
+    sharedGenerator.setPreset(extensionConfig.activePresetId);
   } else {
     const activeConfig = resolveActiveConfig(extensionConfig);
-    xkpasswd.setCustomPreset(activeConfig);
+    sharedGenerator.setCustomPreset(activeConfig);
   }
 
-  const {passwords} = xkpasswd.generatePassword(extensionConfig.numPasswords);
+  const {passwords} = sharedGenerator.generatePassword(extensionConfig.numPasswords);
   return passwords;
 }
 
