@@ -29,3 +29,16 @@ jobs:
         run: npm run test:smoke
       - name: Build
         run: npm run build
+      - name: Package extension zips
+        run: |
+          cd dist/chromium
+          zip -r ../../xkpasswd-chromium.zip .
+          cd ../firefox
+          zip -r ../../xkpasswd-firefox.zip .
+      - name: Upload extension artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-zips
+          path: |
+            xkpasswd-chromium.zip
+            xkpasswd-firefox.zip
