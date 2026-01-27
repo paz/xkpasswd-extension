@@ -1,6 +1,8 @@
-# XKPasswd Extension (MV3)
+# XKPasswd Extension (MV3) Proof of concept
 
 Offline, cross-browser XKPasswd-style password generator built with Manifest V3 and the official [bartificer/xkpasswd-js](https://github.com/bartificer/xkpasswd-js) library. The xkpasswd-js library is included as a git submodule and bundled locally (no remote JS).
+
+I really hate how this turned out and I plan to redo this. But, I like the idea.
 
 ## Prerequisites
 
@@ -73,3 +75,4 @@ npm run test:smoke
 ## License
 
 MIT. See `LICENSE` and `THIRD_PARTY_NOTICES.md`.
+
