@@ -9,39 +9,175 @@
   <body>
     <main class="popup">
       <header class="popup__header">
-        <h1>XKPasswd</h1>
-        <button id="open-options" class="link-button" type="button">Options</button>
+        <div>
+          <p class="eyebrow">XKPasswd Extension</p>
+          <h1>Secure, memorable passwords</h1>
+          <p class="subhead">Fast, accessible controls that match your browser’s look and feel.</p>
+        </div>
+        <div class="header-actions">
+          <button id="open-options" class="ghost" type="button">Options</button>
+        </div>
       </header>
 
-      <section class="popup__controls">
-        <label>
-          # Passwords
-          <input id="num-passwords" type="number" min="1" max="20" />
-        </label>
-        <label>
-          # Words
-          <input id="num-words" type="number" min="2" max="10" />
-        </label>
-        <label>
-          Separator
-          <input id="separator" type="text" maxlength="1" placeholder="Random" />
-        </label>
-        <label>
-          Preset
-          <select id="preset"></select>
-        </label>
+      <section class="card" aria-labelledby="generate-title">
+        <div class="card-header">
+          <div>
+            <h2 id="generate-title">Generate</h2>
+            <p class="helper">Pick a preset and adjust the essentials before generating.</p>
+          </div>
+          <button id="generate" class="primary" type="button">Generate</button>
+        </div>
+        <form id="quick-form" class="grid">
+          <label>
+            Preset
+            <select id="preset"></select>
+          </label>
+          <label>
+            # Passwords
+            <input id="num-passwords" type="number" min="1" max="20" />
+          </label>
+          <label>
+            Words per password
+            <input id="num-words" type="number" min="2" max="10" />
+          </label>
+          <label>
+            Case transform
+            <select id="case-transform">
+              <option value="NONE">None</option>
+              <option value="CAPITALISE">Capitalise</option>
+              <option value="INVERT">Invert</option>
+              <option value="RANDOM">Random</option>
+              <option value="ALTERNATE">Alternate</option>
+            </select>
+          </label>
+          <label>
+            Separator type
+            <select id="separator-type" data-key="separator-type">
+              <option value="RANDOM">Random</option>
+              <option value="FIXED">Fixed</option>
+              <option value="NONE">None</option>
+            </select>
+          </label>
+          <label class="field" data-show-when="separator-type:FIXED">
+            Separator character
+            <input id="separator-character" type="text" maxlength="1" />
+          </label>
+          <label class="field" data-show-when="separator-type:RANDOM">
+            Separator alphabet (optional)
+            <input id="separator-alphabet" type="text" />
+          </label>
+        </form>
+        <div class="preset-meta">
+          <p id="preset-description" class="helper"></p>
+          <button id="manage-presets" class="link-button" type="button">Manage presets</button>
+        </div>
       </section>
 
-      <button id="generate" class="primary" type="button">Generate</button>
-      <div id="toast" class="toast" hidden>Copied!</div>
-
-      <section class="popup__results">
-        <div class="popup__results-header">
-          <h2>Passwords</h2>
-          <button id="copy-all" type="button">Copy all</button>
+      <section class="card" aria-labelledby="advanced-title">
+        <div class="card-header">
+          <div>
+            <h2 id="advanced-title">Advanced settings</h2>
+            <p class="helper">Fine tune word rules, padding, and output behaviors.</p>
+          </div>
+          <p id="validation" class="validation" role="status"></p>
         </div>
+        <details class="details" open>
+          <summary>Words &amp; dictionary</summary>
+          <div class="details__body grid">
+            <label>
+              Word length min
+              <input id="word-min" type="number" min="3" max="20" />
+            </label>
+            <label>
+              Word length max
+              <input id="word-max" type="number" min="3" max="20" />
+            </label>
+            <label class="checkbox">
+              <span>Allow accents</span>
+              <input id="allow-accents" type="checkbox" data-key="allow-accents" />
+            </label>
+            <label>
+              Dictionary
+              <select id="dictionary"></select>
+            </label>
+          </div>
+        </details>
+        <details class="details">
+          <summary>Padding &amp; symbols</summary>
+          <div class="details__body grid">
+            <label>
+              Padding type
+              <select id="padding-type" data-key="padding-type">
+                <option value="FIXED">Fixed</option>
+                <option value="ADAPTIVE">Adaptive</option>
+                <option value="NONE">None</option>
+              </select>
+            </label>
+            <label class="field" data-show-when="padding-type:ADAPTIVE">
+              Pad to length
+              <input id="pad-length" type="number" min="1" max="128" />
+            </label>
+            <label>
+              Digits before
+              <input id="digits-before" type="number" min="0" max="10" />
+            </label>
+            <label>
+              Digits after
+              <input id="digits-after" type="number" min="0" max="10" />
+            </label>
+            <label>
+              Symbols before
+              <input id="padding-before" type="number" min="0" max="10" />
+            </label>
+            <label>
+              Symbols after
+              <input id="padding-after" type="number" min="0" max="10" />
+            </label>
+            <label>
+              Padding character type
+              <select id="padding-char-type" data-key="padding-char-type">
+                <option value="RANDOM">Random</option>
+                <option value="FIXED">Fixed</option>
+              </select>
+            </label>
+            <label class="field" data-show-when="padding-char-type:FIXED">
+              Padding character
+              <input id="padding-char" type="text" maxlength="1" />
+            </label>
+            <label class="field" data-show-when="padding-char-type:RANDOM">
+              Padding alphabet (optional)
+              <input id="padding-alphabet" type="text" />
+            </label>
+            <label>
+              Symbol alphabet
+              <input id="symbol-alphabet" type="text" />
+            </label>
+          </div>
+        </details>
+        <details class="details">
+          <summary>Output &amp; insertion</summary>
+          <div class="details__body grid">
+            <label class="checkbox">
+              <span>Enable right-click insertion</span>
+              <input id="enable-insertion" type="checkbox" data-key="enable-insertion" />
+            </label>
+          </div>
+        </details>
+      </section>
+
+      <section class="card" aria-labelledby="results-title">
+        <div class="popup__results-header">
+          <div>
+            <h2 id="results-title">Passwords</h2>
+            <p class="helper">Copy one or grab them all at once.</p>
+          </div>
+          <button id="copy-all" class="ghost" type="button">Copy all</button>
+        </div>
+        <p id="empty-state" class="helper">Generate passwords to see results here.</p>
         <ul id="password-list" class="password-list"></ul>
       </section>
+
+      <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
     </main>
 
     <script type="module" src="./popup.ts"></script>
