@@ -8,19 +8,35 @@
   </head>
   <body>
     <main class="options">
-      <header>
-        <h1>XKPasswd Options</h1>
-        <p>Configure password generation, presets, and storage.</p>
+      <header class="hero">
+        <div>
+          <p class="eyebrow">XKPasswd Extension</p>
+          <h1>Options &amp; Presets</h1>
+          <p class="subhead">
+            Match the xkpasswd web experience with fast, accessible controls that sync across your browser.
+          </p>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-card">
+            <span>Active preset</span>
+            <select id="preset-select" aria-label="Active preset"></select>
+            <button id="apply-preset" type="button" class="primary">Apply preset</button>
+          </div>
+          <div class="meta-card">
+            <span>Quick actions</span>
+            <button id="save-config" type="button" class="primary">Save settings</button>
+            <button id="reset-config" type="button" class="ghost">Reset defaults</button>
+            <p id="validation" class="validation" role="status"></p>
+          </div>
+        </div>
       </header>
 
-      <section class="card">
-        <h2>Presets</h2>
-        <div class="grid">
-          <label>
-            Active preset
-            <select id="preset-select"></select>
-          </label>
-          <button id="apply-preset" type="button">Apply preset</button>
+      <section class="card" aria-labelledby="preset-title">
+        <div class="card-header">
+          <div>
+            <h2 id="preset-title">Presets</h2>
+            <p class="helper">Save and share presets without overwriting your full configuration.</p>
+          </div>
         </div>
         <div class="grid">
           <label>
@@ -31,24 +47,56 @@
             Description
             <input id="preset-description" type="text" placeholder="Optional description" />
           </label>
-          <button id="save-preset" type="button">Save preset</button>
+          <button id="save-preset" type="button" class="primary">Save preset</button>
         </div>
         <div class="grid">
           <label>
-            Manage custom preset
+            Manage custom presets
             <select id="custom-preset-select"></select>
           </label>
           <label>
-            Rename
+            Rename preset
             <input id="rename-preset" type="text" placeholder="New name" />
           </label>
-          <button id="rename-button" type="button">Rename</button>
-          <button id="delete-button" type="button">Delete</button>
+          <button id="rename-button" type="button" class="ghost">Rename</button>
+          <button id="delete-button" type="button" class="danger">Delete</button>
+        </div>
+        <div class="split">
+          <div>
+            <h3>Export preset</h3>
+            <label>
+              Preset to export
+              <select id="preset-export-select"></select>
+            </label>
+            <textarea id="preset-json" rows="6" spellcheck="false" aria-label="Preset JSON"></textarea>
+            <div class="actions">
+              <button id="export-preset" type="button" class="primary">Export JSON</button>
+              <button id="download-preset" type="button" class="ghost">Download file</button>
+            </div>
+          </div>
+          <div>
+            <h3>Import preset</h3>
+            <label class="file-input">
+              Choose preset JSON file
+              <input id="preset-file" type="file" accept="application/json,.json" />
+            </label>
+            <textarea id="preset-import" rows="6" spellcheck="false" aria-label="Preset JSON to import"></textarea>
+            <div class="actions">
+              <button id="import-preset" type="button" class="primary">Import preset</button>
+              <button id="clear-preset" type="button" class="ghost">Clear</button>
+            </div>
+            <p id="preset-status" class="validation" role="status"></p>
+          </div>
         </div>
       </section>
 
-      <section class="card">
-        <h2>Generation settings</h2>
+      <section class="card" aria-labelledby="settings-title">
+        <div class="card-header">
+          <div>
+            <h2 id="settings-title">Generation settings</h2>
+            <p class="helper">Tune word selection, separators, padding, and output behavior.</p>
+          </div>
+        </div>
         <form id="config-form" class="form-grid">
           <label>
             Password count
@@ -89,6 +137,10 @@
             <input id="separator-char" type="text" maxlength="1" />
           </label>
           <label>
+            Separator alphabet (optional)
+            <input id="separator-alphabet" type="text" />
+          </label>
+          <label>
             Padding type
             <select id="padding-type">
               <option value="FIXED">Fixed</option>
@@ -112,6 +164,10 @@
             <input id="padding-char" type="text" maxlength="1" />
           </label>
           <label>
+            Padding alphabet (optional)
+            <input id="padding-alphabet" type="text" />
+          </label>
+          <label>
             Digits before
             <input id="digits-before" type="number" min="0" max="10" />
           </label>
@@ -131,19 +187,11 @@
             Symbol alphabet
             <input id="symbol-alphabet" type="text" />
           </label>
-          <label>
-            Separator alphabet (optional)
-            <input id="separator-alphabet" type="text" />
-          </label>
-          <label>
-            Padding alphabet (optional)
-            <input id="padding-alphabet" type="text" />
-          </label>
-          <label>
+          <label class="inline">
             Allow accents
             <input id="allow-accents" type="checkbox" />
           </label>
-          <label>
+          <label class="inline">
             Enable insertion
             <input id="enable-insertion" type="checkbox" />
           </label>
@@ -153,25 +201,29 @@
           </label>
           <p id="dictionary-note" class="helper"></p>
         </form>
-        <div class="actions">
-          <button id="save-config" type="button">Save settings</button>
-          <button id="reset-config" type="button">Reset defaults</button>
-        </div>
-        <p id="validation" class="validation"></p>
       </section>
 
-      <section class="card">
-        <h2>Import / Export</h2>
+      <section class="card" aria-labelledby="config-title">
+        <div class="card-header">
+          <div>
+            <h2 id="config-title">Configuration import / export</h2>
+            <p class="helper">Move the entire settings bundle between devices.</p>
+          </div>
+        </div>
         <textarea id="config-json" rows="6" spellcheck="false"></textarea>
         <div class="actions">
-          <button id="export-config" type="button">Export JSON</button>
-          <button id="import-config" type="button">Import JSON</button>
+          <button id="export-config" type="button" class="primary">Export JSON</button>
+          <button id="import-config" type="button" class="ghost">Import JSON</button>
         </div>
-        <p id="import-status" class="validation"></p>
+        <p id="import-status" class="validation" role="status"></p>
       </section>
 
-      <section class="card">
-        <h2>About</h2>
+      <section class="card" aria-labelledby="about-title">
+        <div class="card-header">
+          <div>
+            <h2 id="about-title">About</h2>
+          </div>
+        </div>
         <p>
           XKPasswd uses the official <code>xkpasswd-js</code> library by Bartificer to generate
           passwords completely offline.
