@@ -1,0 +1,3 @@
+[submodule "vendor/xkpasswd-js"]
+	path = vendor/xkpasswd-js
+	url = https://github.com/bartificer/xkpasswd-js.git

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XKPasswd</title>
+    <link rel="stylesheet" href="./popup.css" />
+  </head>
+  <body>
+    <main class="popup">
+      <header class="popup__header">
+        <h1>XKPasswd</h1>
+        <button id="open-options" class="link-button" type="button">Options</button>
+      </header>
+
+      <section class="popup__controls">
+        <label>
+          # Passwords
+          <input id="num-passwords" type="number" min="1" max="20" />
+        </label>
+        <label>
+          # Words
+          <input id="num-words" type="number" min="2" max="10" />
+        </label>
+        <label>
+          Separator
+          <input id="separator" type="text" maxlength="1" placeholder="Random" />
+        </label>
+        <label>
+          Preset
+          <select id="preset"></select>
+        </label>
+      </section>
+
+      <button id="generate" class="primary" type="button">Generate</button>
+      <div id="toast" class="toast" hidden>Copied!</div>
+
+      <section class="popup__results">
+        <div class="popup__results-header">
+          <h2>Passwords</h2>
+          <button id="copy-all" type="button">Copy all</button>
+        </div>
+        <ul id="password-list" class="password-list"></ul>
+      </section>
+    </main>
+
+    <script type="module" src="./popup.ts"></script>
+  </body>
+</html>

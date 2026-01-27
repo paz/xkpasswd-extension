@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XKPasswd Options</title>
+    <link rel="stylesheet" href="./options.css" />
+  </head>
+  <body>
+    <main class="options">
+      <header>
+        <h1>XKPasswd Options</h1>
+        <p>Configure password generation, presets, and storage.</p>
+      </header>
+
+      <section class="card">
+        <h2>Presets</h2>
+        <div class="grid">
+          <label>
+            Active preset
+            <select id="preset-select"></select>
+          </label>
+          <button id="apply-preset" type="button">Apply preset</button>
+        </div>
+        <div class="grid">
+          <label>
+            Save current as preset
+            <input id="preset-name" type="text" placeholder="Preset name" />
+          </label>
+          <label>
+            Description
+            <input id="preset-description" type="text" placeholder="Optional description" />
+          </label>
+          <button id="save-preset" type="button">Save preset</button>
+        </div>
+        <div class="grid">
+          <label>
+            Manage custom preset
+            <select id="custom-preset-select"></select>
+          </label>
+          <label>
+            Rename
+            <input id="rename-preset" type="text" placeholder="New name" />
+          </label>
+          <button id="rename-button" type="button">Rename</button>
+          <button id="delete-button" type="button">Delete</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Generation settings</h2>
+        <form id="config-form" class="form-grid">
+          <label>
+            Password count
+            <input id="num-passwords" type="number" min="1" max="50" />
+          </label>
+          <label>
+            Words per password
+            <input id="num-words" type="number" min="2" max="10" />
+          </label>
+          <label>
+            Word length min
+            <input id="word-min" type="number" min="3" max="20" />
+          </label>
+          <label>
+            Word length max
+            <input id="word-max" type="number" min="3" max="20" />
+          </label>
+          <label>
+            Case transform
+            <select id="case-transform">
+              <option value="NONE">None</option>
+              <option value="CAPITALISE">Capitalise</option>
+              <option value="INVERT">Invert</option>
+              <option value="RANDOM">Random</option>
+              <option value="ALTERNATE">Alternate</option>
+            </select>
+          </label>
+          <label>
+            Separator type
+            <select id="separator-type">
+              <option value="RANDOM">Random</option>
+              <option value="FIXED">Fixed</option>
+              <option value="NONE">None</option>
+            </select>
+          </label>
+          <label>
+            Separator character
+            <input id="separator-char" type="text" maxlength="1" />
+          </label>
+          <label>
+            Padding type
+            <select id="padding-type">
+              <option value="FIXED">Fixed</option>
+              <option value="ADAPTIVE">Adaptive</option>
+              <option value="NONE">None</option>
+            </select>
+          </label>
+          <label>
+            Pad to length (adaptive)
+            <input id="pad-length" type="number" min="1" max="128" />
+          </label>
+          <label>
+            Padding character type
+            <select id="padding-char-type">
+              <option value="RANDOM">Random</option>
+              <option value="FIXED">Fixed</option>
+            </select>
+          </label>
+          <label>
+            Padding character
+            <input id="padding-char" type="text" maxlength="1" />
+          </label>
+          <label>
+            Digits before
+            <input id="digits-before" type="number" min="0" max="10" />
+          </label>
+          <label>
+            Digits after
+            <input id="digits-after" type="number" min="0" max="10" />
+          </label>
+          <label>
+            Padding before
+            <input id="padding-before" type="number" min="0" max="10" />
+          </label>
+          <label>
+            Padding after
+            <input id="padding-after" type="number" min="0" max="10" />
+          </label>
+          <label>
+            Symbol alphabet
+            <input id="symbol-alphabet" type="text" />
+          </label>
+          <label>
+            Separator alphabet (optional)
+            <input id="separator-alphabet" type="text" />
+          </label>
+          <label>
+            Padding alphabet (optional)
+            <input id="padding-alphabet" type="text" />
+          </label>
+          <label>
+            Allow accents
+            <input id="allow-accents" type="checkbox" />
+          </label>
+          <label>
+            Enable insertion
+            <input id="enable-insertion" type="checkbox" />
+          </label>
+          <label>
+            Dictionary
+            <select id="dictionary"></select>
+          </label>
+        </form>
+        <div class="actions">
+          <button id="save-config" type="button">Save settings</button>
+          <button id="reset-config" type="button">Reset defaults</button>
+        </div>
+        <p id="validation" class="validation"></p>
+      </section>
+
+      <section class="card">
+        <h2>Import / Export</h2>
+        <textarea id="config-json" rows="6" spellcheck="false"></textarea>
+        <div class="actions">
+          <button id="export-config" type="button">Export JSON</button>
+          <button id="import-config" type="button">Import JSON</button>
+        </div>
+        <p id="import-status" class="validation"></p>
+      </section>
+
+      <section class="card">
+        <h2>About</h2>
+        <p>
+          XKPasswd uses the official <code>xkpasswd-js</code> library by Bartificer to generate
+          passwords completely offline.
+        </p>
+      </section>
+    </main>
+
+    <script type="module" src="./options.ts"></script>
+  </body>
+</html>

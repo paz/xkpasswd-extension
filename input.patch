@@ -1,0 +1,2867 @@
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000000000000000000000000000000000000..dbc6217dbffb9dd2ee1c8015279fdd6cc4c75a77
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,4 @@
++node_modules/
++dist/
++.DS_Store
++.env
+diff --git a/.gitmodules b/.gitmodules
+new file mode 100644
+index 0000000000000000000000000000000000000000..2db47e09a306504e5c0b5f958d39b4d07c2b834e
+--- /dev/null
++++ b/.gitmodules
+@@ -0,0 +1,3 @@
++[submodule "vendor/xkpasswd-js"]
++	path = vendor/xkpasswd-js
++	url = https://github.com/bartificer/xkpasswd-js.git
+diff --git a/LICENSE b/LICENSE
+new file mode 100644
+index 0000000000000000000000000000000000000000..b77bf2ab726c6e7cb5a81a9d3b7dc38266ebfd3d
+--- /dev/null
++++ b/LICENSE
+@@ -0,0 +1,21 @@
++MIT License
++
++Copyright (c) 2025
++
++Permission is hereby granted, free of charge, to any person obtaining a copy
++of this software and associated documentation files (the "Software"), to deal
++in the Software without restriction, including without limitation the rights
++to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
++copies of the Software, and to permit persons to whom the Software is
++furnished to do so, subject to the following conditions:
++
++The above copyright notice and this permission notice shall be included in all
++copies or substantial portions of the Software.
++
++THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
++OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++SOFTWARE.
+diff --git a/README.md b/README.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..dbea256684ad44e01879139a05a424ecc66738f7
+--- /dev/null
++++ b/README.md
+@@ -0,0 +1,75 @@
++# XKPasswd Extension (MV3)
++
++Offline, cross-browser XKPasswd-style password generator built with Manifest V3 and the official [bartificer/xkpasswd-js](https://github.com/bartificer/xkpasswd-js) library. The xkpasswd-js library is included as a git submodule and bundled locally (no remote JS).
++
++## Prerequisites
++
++- Node.js 18+
++- npm
++
++## Repo setup
++
++```bash
++git submodule update --init --recursive
++```
++
++Pinned xkpasswd-js commit:
++
++```
++84ad09ab9cc30fb4b923b19a2d1e164daa8ca287
++```
++
++## Install
++
++```bash
++npm install
++```
++
++## Build
++
++```bash
++npm run build
++```
++
++Build outputs:
++
++- `dist/chromium/` (Chrome/Edge MV3)
++- `dist/firefox/` (Firefox MV3)
++- Icons are shipped as SVGs in `public/icons/`.
++
++### Build individual targets
++
++```bash
++npm run build:chromium
++npm run build:firefox
++```
++
++## Load the extension
++
++### Chrome / Edge
++
++1. Open `chrome://extensions`.
++2. Enable **Developer mode**.
++3. Click **Load unpacked** and select `dist/chromium`.
++
++### Firefox
++
++1. Open `about:debugging#/runtime/this-firefox`.
++2. Click **Load Temporary Add-on**.
++3. Select `dist/firefox/manifest.json`.
++
++## Update the submodule
++
++```bash
++git submodule update --remote vendor/xkpasswd-js
++```
++
++## Smoke test
++
++```bash
++npm run test:smoke
++```
++
++## License
++
++MIT. See `LICENSE` and `THIRD_PARTY_NOTICES.md`.
+diff --git a/THIRD_PARTY_NOTICES.md b/THIRD_PARTY_NOTICES.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..db837e9759ee2135675bc816aa8c8293839265e3
+--- /dev/null
++++ b/THIRD_PARTY_NOTICES.md
+@@ -0,0 +1,24 @@
++# Third-Party Notices
++
++## xkpasswd-js
++
++- Source: https://github.com/bartificer/xkpasswd-js
++- License: ISC (see `vendor/xkpasswd-js/LICENSE`)
++
++```
++ISC License
++
++Copyright (c) 2024 Bartificer
++
++Permission to use, copy, modify, and/or distribute this software for any
++purpose with or without fee is hereby granted, provided that the above
++copyright notice and this permission notice appear in all copies.
++
++THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
++REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
++AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
++INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
++LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
++OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
++PERFORMANCE OF THIS SOFTWARE.
++```
+diff --git a/docs/upstream-notes.md b/docs/upstream-notes.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..ee94b1d6dfad62ba145414d2e11754d7a0431ca7
+--- /dev/null
++++ b/docs/upstream-notes.md
+@@ -0,0 +1,41 @@
++# Upstream Notes: xkpasswd-js
++
++## Entrypoints
++
++- Primary class: `vendor/xkpasswd-js/src/xkpasswd.mjs` (exports `XKPasswd`).
++- Presets helper: `vendor/xkpasswd-js/src/presets.mjs` (exports `Presets`).
++- English dictionary: `vendor/xkpasswd-js/src/dictionaryEN.mjs` (used by `XKPasswd`).
++
++## Minimal usage
++
++```js
++import {XKPasswd} from './vendor/xkpasswd-js/src/xkpasswd.mjs';
++
++const generator = new XKPasswd();
++const {passwords} = generator.generatePassword(1);
++console.log(passwords[0]);
++```
++
++## Config shape
++
++The generator expects a configuration object with keys such as:
++
++- `word_length_min`, `word_length_max`
++- `num_words`
++- `separator_type` (`NONE`, `RANDOM`, `FIXED`) and `separator_character`
++- `padding_type` (`NONE`, `FIXED`, `ADAPTIVE`)
++- `padding_character_type` (`RANDOM`, `FIXED`)
++- `padding_digits_before`, `padding_digits_after`
++- `padding_characters_before`, `padding_characters_after`
++- `case_transform`
++- `symbol_alphabet`, optional `separator_alphabet` and `padding_alphabet`
++
++Presets are defined in `vendor/xkpasswd-js/src/presets.mjs` and can be selected by name via `new Presets('DEFAULT')` or `XKPasswd#setPreset('DEFAULT')`.
++
++## Dictionary assets
++
++The English word list is embedded directly in `vendor/xkpasswd-js/src/dictionaryEN.mjs` and is loaded by default by `XKPasswd`. No external dictionary files are required.
++
++## License / attribution
++
++`xkpasswd-js` is licensed under ISC (see `vendor/xkpasswd-js/LICENSE`). Ensure the license text is included in `THIRD_PARTY_NOTICES.md`.
+diff --git a/package-lock.json b/package-lock.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..93850759a7d643ab71e16541ba8ce9ade2a78d82
+--- /dev/null
++++ b/package-lock.json
+@@ -0,0 +1,1053 @@
++{
++  "name": "xkpasswd-extension",
++  "version": "0.1.0",
++  "lockfileVersion": 3,
++  "requires": true,
++  "packages": {
++    "": {
++      "name": "xkpasswd-extension",
++      "version": "0.1.0",
++      "dependencies": {
++        "crypto-random-string": "^5.0.0",
++        "is-it-check": "^1.0.12",
++        "loglevel": "^1.8.1"
++      },
++      "devDependencies": {
++        "typescript": "^5.6.3",
++        "vite": "^5.4.8"
++      }
++    },
++    "node_modules/@esbuild/aix-ppc64": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/aix-ppc64/-/aix-ppc64-0.21.5.tgz",
++      "integrity": "sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ==",
++      "cpu": [
++        "ppc64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "aix"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/android-arm": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/android-arm/-/android-arm-0.21.5.tgz",
++      "integrity": "sha512-vCPvzSjpPHEi1siZdlvAlsPxXl7WbOVUBBAowWug4rJHb68Ox8KualB+1ocNvT5fjv6wpkX6o/iEpbDrf68zcg==",
++      "cpu": [
++        "arm"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "android"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/android-arm64": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/android-arm64/-/android-arm64-0.21.5.tgz",
++      "integrity": "sha512-c0uX9VAUBQ7dTDCjq+wdyGLowMdtR/GoC2U5IYk/7D1H1JYC0qseD7+11iMP2mRLN9RcCMRcjC4YMclCzGwS/A==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "android"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/android-x64": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/android-x64/-/android-x64-0.21.5.tgz",
++      "integrity": "sha512-D7aPRUUNHRBwHxzxRvp856rjUHRFW1SdQATKXH2hqA0kAZb1hKmi02OpYRacl0TxIGz/ZmXWlbZgjwWYaCakTA==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "android"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/darwin-arm64": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.21.5.tgz",
++      "integrity": "sha512-DwqXqZyuk5AiWWf3UfLiRDJ5EDd49zg6O9wclZ7kUMv2WRFr4HKjXp/5t8JZ11QbQfUS6/cRCKGwYhtNAY88kQ==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/darwin-x64": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/darwin-x64/-/darwin-x64-0.21.5.tgz",
++      "integrity": "sha512-se/JjF8NlmKVG4kNIuyWMV/22ZaerB+qaSi5MdrXtd6R08kvs2qCN4C09miupktDitvh8jRFflwGFBQcxZRjbw==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/freebsd-arm64": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/freebsd-arm64/-/freebsd-arm64-0.21.5.tgz",
++      "integrity": "sha512-5JcRxxRDUJLX8JXp/wcBCy3pENnCgBR9bN6JsY4OmhfUtIHe3ZW0mawA7+RDAcMLrMIZaf03NlQiX9DGyB8h4g==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "freebsd"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/freebsd-x64": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/freebsd-x64/-/freebsd-x64-0.21.5.tgz",
++      "integrity": "sha512-J95kNBj1zkbMXtHVH29bBriQygMXqoVQOQYA+ISs0/2l3T9/kj42ow2mpqerRBxDJnmkUDCaQT/dfNXWX/ZZCQ==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "freebsd"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/linux-arm": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-arm/-/linux-arm-0.21.5.tgz",
++      "integrity": "sha512-bPb5AHZtbeNGjCKVZ9UGqGwo8EUu4cLq68E95A53KlxAPRmUyYv2D6F0uUI65XisGOL1hBP5mTronbgo+0bFcA==",
++      "cpu": [
++        "arm"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/linux-arm64": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-arm64/-/linux-arm64-0.21.5.tgz",
++      "integrity": "sha512-ibKvmyYzKsBeX8d8I7MH/TMfWDXBF3db4qM6sy+7re0YXya+K1cem3on9XgdT2EQGMu4hQyZhan7TeQ8XkGp4Q==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/linux-ia32": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-ia32/-/linux-ia32-0.21.5.tgz",
++      "integrity": "sha512-YvjXDqLRqPDl2dvRODYmmhz4rPeVKYvppfGYKSNGdyZkA01046pLWyRKKI3ax8fbJoK5QbxblURkwK/MWY18Tg==",
++      "cpu": [
++        "ia32"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/linux-loong64": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-loong64/-/linux-loong64-0.21.5.tgz",
++      "integrity": "sha512-uHf1BmMG8qEvzdrzAqg2SIG/02+4/DHB6a9Kbya0XDvwDEKCoC8ZRWI5JJvNdUjtciBGFQ5PuBlpEOXQj+JQSg==",
++      "cpu": [
++        "loong64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/linux-mips64el": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-mips64el/-/linux-mips64el-0.21.5.tgz",
++      "integrity": "sha512-IajOmO+KJK23bj52dFSNCMsz1QP1DqM6cwLUv3W1QwyxkyIWecfafnI555fvSGqEKwjMXVLokcV5ygHW5b3Jbg==",
++      "cpu": [
++        "mips64el"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/linux-ppc64": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-ppc64/-/linux-ppc64-0.21.5.tgz",
++      "integrity": "sha512-1hHV/Z4OEfMwpLO8rp7CvlhBDnjsC3CttJXIhBi+5Aj5r+MBvy4egg7wCbe//hSsT+RvDAG7s81tAvpL2XAE4w==",
++      "cpu": [
++        "ppc64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/linux-riscv64": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-riscv64/-/linux-riscv64-0.21.5.tgz",
++      "integrity": "sha512-2HdXDMd9GMgTGrPWnJzP2ALSokE/0O5HhTUvWIbD3YdjME8JwvSCnNGBnTThKGEB91OZhzrJ4qIIxk/SBmyDDA==",
++      "cpu": [
++        "riscv64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/linux-s390x": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-s390x/-/linux-s390x-0.21.5.tgz",
++      "integrity": "sha512-zus5sxzqBJD3eXxwvjN1yQkRepANgxE9lgOW2qLnmr8ikMTphkjgXu1HR01K4FJg8h1kEEDAqDcZQtbrRnB41A==",
++      "cpu": [
++        "s390x"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/linux-x64": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.21.5.tgz",
++      "integrity": "sha512-1rYdTpyv03iycF1+BhzrzQJCdOuAOtaqHTWJZCWvijKD2N5Xu0TtVC8/+1faWqcP9iBCWOmjmhoH94dH82BxPQ==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/netbsd-x64": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/netbsd-x64/-/netbsd-x64-0.21.5.tgz",
++      "integrity": "sha512-Woi2MXzXjMULccIwMnLciyZH4nCIMpWQAs049KEeMvOcNADVxo0UBIQPfSmxB3CWKedngg7sWZdLvLczpe0tLg==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "netbsd"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/openbsd-x64": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/openbsd-x64/-/openbsd-x64-0.21.5.tgz",
++      "integrity": "sha512-HLNNw99xsvx12lFBUwoT8EVCsSvRNDVxNpjZ7bPn947b8gJPzeHWyNVhFsaerc0n3TsbOINvRP2byTZ5LKezow==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "openbsd"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/sunos-x64": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/sunos-x64/-/sunos-x64-0.21.5.tgz",
++      "integrity": "sha512-6+gjmFpfy0BHU5Tpptkuh8+uw3mnrvgs+dSPQXQOv3ekbordwnzTVEb4qnIvQcYXq6gzkyTnoZ9dZG+D4garKg==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "sunos"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/win32-arm64": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/win32-arm64/-/win32-arm64-0.21.5.tgz",
++      "integrity": "sha512-Z0gOTd75VvXqyq7nsl93zwahcTROgqvuAcYDUr+vOv8uHhNSKROyU961kgtCD1e95IqPKSQKH7tBTslnS3tA8A==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/win32-ia32": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/win32-ia32/-/win32-ia32-0.21.5.tgz",
++      "integrity": "sha512-SWXFF1CL2RVNMaVs+BBClwtfZSvDgtL//G/smwAc5oVK/UPu2Gu9tIaRgFmYFFKrmg3SyAjSrElf0TiJ1v8fYA==",
++      "cpu": [
++        "ia32"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@esbuild/win32-x64": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/@esbuild/win32-x64/-/win32-x64-0.21.5.tgz",
++      "integrity": "sha512-tQd/1efJuzPC6rCFwEvLtci/xNFcTZknmXs98FYDfGE4wP9ClFV98nyKrzJKVPMhdDnjzLhdUyMX4PsQAPjwIw==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": ">=12"
++      }
++    },
++    "node_modules/@rollup/rollup-android-arm-eabi": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-android-arm-eabi/-/rollup-android-arm-eabi-4.56.0.tgz",
++      "integrity": "sha512-LNKIPA5k8PF1+jAFomGe3qN3bbIgJe/IlpDBwuVjrDKrJhVWywgnJvflMt/zkbVNLFtF1+94SljYQS6e99klnw==",
++      "cpu": [
++        "arm"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "android"
++      ]
++    },
++    "node_modules/@rollup/rollup-android-arm64": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-android-arm64/-/rollup-android-arm64-4.56.0.tgz",
++      "integrity": "sha512-lfbVUbelYqXlYiU/HApNMJzT1E87UPGvzveGg2h0ktUNlOCxKlWuJ9jtfvs1sKHdwU4fzY7Pl8sAl49/XaEk6Q==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "android"
++      ]
++    },
++    "node_modules/@rollup/rollup-darwin-arm64": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-darwin-arm64/-/rollup-darwin-arm64-4.56.0.tgz",
++      "integrity": "sha512-EgxD1ocWfhoD6xSOeEEwyE7tDvwTgZc8Bss7wCWe+uc7wO8G34HHCUH+Q6cHqJubxIAnQzAsyUsClt0yFLu06w==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "darwin"
++      ]
++    },
++    "node_modules/@rollup/rollup-darwin-x64": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-darwin-x64/-/rollup-darwin-x64-4.56.0.tgz",
++      "integrity": "sha512-1vXe1vcMOssb/hOF8iv52A7feWW2xnu+c8BV4t1F//m9QVLTfNVpEdja5ia762j/UEJe2Z1jAmEqZAK42tVW3g==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "darwin"
++      ]
++    },
++    "node_modules/@rollup/rollup-freebsd-arm64": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-freebsd-arm64/-/rollup-freebsd-arm64-4.56.0.tgz",
++      "integrity": "sha512-bof7fbIlvqsyv/DtaXSck4VYQ9lPtoWNFCB/JY4snlFuJREXfZnm+Ej6yaCHfQvofJDXLDMTVxWscVSuQvVWUQ==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "freebsd"
++      ]
++    },
++    "node_modules/@rollup/rollup-freebsd-x64": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-freebsd-x64/-/rollup-freebsd-x64-4.56.0.tgz",
++      "integrity": "sha512-KNa6lYHloW+7lTEkYGa37fpvPq+NKG/EHKM8+G/g9WDU7ls4sMqbVRV78J6LdNuVaeeK5WB9/9VAFbKxcbXKYg==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "freebsd"
++      ]
++    },
++    "node_modules/@rollup/rollup-linux-arm-gnueabihf": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-linux-arm-gnueabihf/-/rollup-linux-arm-gnueabihf-4.56.0.tgz",
++      "integrity": "sha512-E8jKK87uOvLrrLN28jnAAAChNq5LeCd2mGgZF+fGF5D507WlG/Noct3lP/QzQ6MrqJ5BCKNwI9ipADB6jyiq2A==",
++      "cpu": [
++        "arm"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ]
++    },
++    "node_modules/@rollup/rollup-linux-arm-musleabihf": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-linux-arm-musleabihf/-/rollup-linux-arm-musleabihf-4.56.0.tgz",
++      "integrity": "sha512-jQosa5FMYF5Z6prEpTCCmzCXz6eKr/tCBssSmQGEeozA9tkRUty/5Vx06ibaOP9RCrW1Pvb8yp3gvZhHwTDsJw==",
++      "cpu": [
++        "arm"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ]
++    },
++    "node_modules/@rollup/rollup-linux-arm64-gnu": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-linux-arm64-gnu/-/rollup-linux-arm64-gnu-4.56.0.tgz",
++      "integrity": "sha512-uQVoKkrC1KGEV6udrdVahASIsaF8h7iLG0U0W+Xn14ucFwi6uS539PsAr24IEF9/FoDtzMeeJXJIBo5RkbNWvQ==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ]
++    },
++    "node_modules/@rollup/rollup-linux-arm64-musl": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-linux-arm64-musl/-/rollup-linux-arm64-musl-4.56.0.tgz",
++      "integrity": "sha512-vLZ1yJKLxhQLFKTs42RwTwa6zkGln+bnXc8ueFGMYmBTLfNu58sl5/eXyxRa2RarTkJbXl8TKPgfS6V5ijNqEA==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ]
++    },
++    "node_modules/@rollup/rollup-linux-loong64-gnu": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-linux-loong64-gnu/-/rollup-linux-loong64-gnu-4.56.0.tgz",
++      "integrity": "sha512-FWfHOCub564kSE3xJQLLIC/hbKqHSVxy8vY75/YHHzWvbJL7aYJkdgwD/xGfUlL5UV2SB7otapLrcCj2xnF1dg==",
++      "cpu": [
++        "loong64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ]
++    },
++    "node_modules/@rollup/rollup-linux-loong64-musl": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-linux-loong64-musl/-/rollup-linux-loong64-musl-4.56.0.tgz",
++      "integrity": "sha512-z1EkujxIh7nbrKL1lmIpqFTc/sr0u8Uk0zK/qIEFldbt6EDKWFk/pxFq3gYj4Bjn3aa9eEhYRlL3H8ZbPT1xvA==",
++      "cpu": [
++        "loong64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ]
++    },
++    "node_modules/@rollup/rollup-linux-ppc64-gnu": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-linux-ppc64-gnu/-/rollup-linux-ppc64-gnu-4.56.0.tgz",
++      "integrity": "sha512-iNFTluqgdoQC7AIE8Q34R3AuPrJGJirj5wMUErxj22deOcY7XwZRaqYmB6ZKFHoVGqRcRd0mqO+845jAibKCkw==",
++      "cpu": [
++        "ppc64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ]
++    },
++    "node_modules/@rollup/rollup-linux-ppc64-musl": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-linux-ppc64-musl/-/rollup-linux-ppc64-musl-4.56.0.tgz",
++      "integrity": "sha512-MtMeFVlD2LIKjp2sE2xM2slq3Zxf9zwVuw0jemsxvh1QOpHSsSzfNOTH9uYW9i1MXFxUSMmLpeVeUzoNOKBaWg==",
++      "cpu": [
++        "ppc64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ]
++    },
++    "node_modules/@rollup/rollup-linux-riscv64-gnu": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-linux-riscv64-gnu/-/rollup-linux-riscv64-gnu-4.56.0.tgz",
++      "integrity": "sha512-in+v6wiHdzzVhYKXIk5U74dEZHdKN9KH0Q4ANHOTvyXPG41bajYRsy7a8TPKbYPl34hU7PP7hMVHRvv/5aCSew==",
++      "cpu": [
++        "riscv64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ]
++    },
++    "node_modules/@rollup/rollup-linux-riscv64-musl": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-linux-riscv64-musl/-/rollup-linux-riscv64-musl-4.56.0.tgz",
++      "integrity": "sha512-yni2raKHB8m9NQpI9fPVwN754mn6dHQSbDTwxdr9SE0ks38DTjLMMBjrwvB5+mXrX+C0npX0CVeCUcvvvD8CNQ==",
++      "cpu": [
++        "riscv64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ]
++    },
++    "node_modules/@rollup/rollup-linux-s390x-gnu": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-linux-s390x-gnu/-/rollup-linux-s390x-gnu-4.56.0.tgz",
++      "integrity": "sha512-zhLLJx9nQPu7wezbxt2ut+CI4YlXi68ndEve16tPc/iwoylWS9B3FxpLS2PkmfYgDQtosah07Mj9E0khc3Y+vQ==",
++      "cpu": [
++        "s390x"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ]
++    },
++    "node_modules/@rollup/rollup-linux-x64-gnu": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-linux-x64-gnu/-/rollup-linux-x64-gnu-4.56.0.tgz",
++      "integrity": "sha512-MVC6UDp16ZSH7x4rtuJPAEoE1RwS8N4oK9DLHy3FTEdFoUTCFVzMfJl/BVJ330C+hx8FfprA5Wqx4FhZXkj2Kw==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ]
++    },
++    "node_modules/@rollup/rollup-linux-x64-musl": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-linux-x64-musl/-/rollup-linux-x64-musl-4.56.0.tgz",
++      "integrity": "sha512-ZhGH1eA4Qv0lxaV00azCIS1ChedK0V32952Md3FtnxSqZTBTd6tgil4nZT5cU8B+SIw3PFYkvyR4FKo2oyZIHA==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "linux"
++      ]
++    },
++    "node_modules/@rollup/rollup-openbsd-x64": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-openbsd-x64/-/rollup-openbsd-x64-4.56.0.tgz",
++      "integrity": "sha512-O16XcmyDeFI9879pEcmtWvD/2nyxR9mF7Gs44lf1vGGx8Vg2DRNx11aVXBEqOQhWb92WN4z7fW/q4+2NYzCbBA==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "openbsd"
++      ]
++    },
++    "node_modules/@rollup/rollup-openharmony-arm64": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-openharmony-arm64/-/rollup-openharmony-arm64-4.56.0.tgz",
++      "integrity": "sha512-LhN/Reh+7F3RCgQIRbgw8ZMwUwyqJM+8pXNT6IIJAqm2IdKkzpCh/V9EdgOMBKuebIrzswqy4ATlrDgiOwbRcQ==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "openharmony"
++      ]
++    },
++    "node_modules/@rollup/rollup-win32-arm64-msvc": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-win32-arm64-msvc/-/rollup-win32-arm64-msvc-4.56.0.tgz",
++      "integrity": "sha512-kbFsOObXp3LBULg1d3JIUQMa9Kv4UitDmpS+k0tinPBz3watcUiV2/LUDMMucA6pZO3WGE27P7DsfaN54l9ing==",
++      "cpu": [
++        "arm64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "win32"
++      ]
++    },
++    "node_modules/@rollup/rollup-win32-ia32-msvc": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-win32-ia32-msvc/-/rollup-win32-ia32-msvc-4.56.0.tgz",
++      "integrity": "sha512-vSSgny54D6P4vf2izbtFm/TcWYedw7f8eBrOiGGecyHyQB9q4Kqentjaj8hToe+995nob/Wv48pDqL5a62EWtg==",
++      "cpu": [
++        "ia32"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "win32"
++      ]
++    },
++    "node_modules/@rollup/rollup-win32-x64-gnu": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-win32-x64-gnu/-/rollup-win32-x64-gnu-4.56.0.tgz",
++      "integrity": "sha512-FeCnkPCTHQJFbiGG49KjV5YGW/8b9rrXAM2Mz2kiIoktq2qsJxRD5giEMEOD2lPdgs72upzefaUvS+nc8E3UzQ==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "win32"
++      ]
++    },
++    "node_modules/@rollup/rollup-win32-x64-msvc": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/@rollup/rollup-win32-x64-msvc/-/rollup-win32-x64-msvc-4.56.0.tgz",
++      "integrity": "sha512-H8AE9Ur/t0+1VXujj90w0HrSOuv0Nq9r1vSZF2t5km20NTfosQsGGUXDaKdQZzwuLts7IyL1fYT4hM95TI9c4g==",
++      "cpu": [
++        "x64"
++      ],
++      "dev": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "win32"
++      ]
++    },
++    "node_modules/@types/estree": {
++      "version": "1.0.8",
++      "resolved": "https://registry.npmjs.org/@types/estree/-/estree-1.0.8.tgz",
++      "integrity": "sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==",
++      "dev": true,
++      "license": "MIT"
++    },
++    "node_modules/crypto-random-string": {
++      "version": "5.0.0",
++      "resolved": "https://registry.npmjs.org/crypto-random-string/-/crypto-random-string-5.0.0.tgz",
++      "integrity": "sha512-KWjTXWwxFd6a94m5CdRGW/t82Tr8DoBc9dNnPCAbFI1EBweN6v1tv8y4Y1m7ndkp/nkIBRxUxAzpaBnR2k3bcQ==",
++      "license": "MIT",
++      "dependencies": {
++        "type-fest": "^2.12.2"
++      },
++      "engines": {
++        "node": ">=14.16"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/sindresorhus"
++      }
++    },
++    "node_modules/esbuild": {
++      "version": "0.21.5",
++      "resolved": "https://registry.npmjs.org/esbuild/-/esbuild-0.21.5.tgz",
++      "integrity": "sha512-mg3OPMV4hXywwpoDxu3Qda5xCKQi+vCTZq8S9J/EpkhB2HzKXq4SNFZE3+NK93JYxc8VMSep+lOUSC/RVKaBqw==",
++      "dev": true,
++      "hasInstallScript": true,
++      "license": "MIT",
++      "bin": {
++        "esbuild": "bin/esbuild"
++      },
++      "engines": {
++        "node": ">=12"
++      },
++      "optionalDependencies": {
++        "@esbuild/aix-ppc64": "0.21.5",
++        "@esbuild/android-arm": "0.21.5",
++        "@esbuild/android-arm64": "0.21.5",
++        "@esbuild/android-x64": "0.21.5",
++        "@esbuild/darwin-arm64": "0.21.5",
++        "@esbuild/darwin-x64": "0.21.5",
++        "@esbuild/freebsd-arm64": "0.21.5",
++        "@esbuild/freebsd-x64": "0.21.5",
++        "@esbuild/linux-arm": "0.21.5",
++        "@esbuild/linux-arm64": "0.21.5",
++        "@esbuild/linux-ia32": "0.21.5",
++        "@esbuild/linux-loong64": "0.21.5",
++        "@esbuild/linux-mips64el": "0.21.5",
++        "@esbuild/linux-ppc64": "0.21.5",
++        "@esbuild/linux-riscv64": "0.21.5",
++        "@esbuild/linux-s390x": "0.21.5",
++        "@esbuild/linux-x64": "0.21.5",
++        "@esbuild/netbsd-x64": "0.21.5",
++        "@esbuild/openbsd-x64": "0.21.5",
++        "@esbuild/sunos-x64": "0.21.5",
++        "@esbuild/win32-arm64": "0.21.5",
++        "@esbuild/win32-ia32": "0.21.5",
++        "@esbuild/win32-x64": "0.21.5"
++      }
++    },
++    "node_modules/fsevents": {
++      "version": "2.3.3",
++      "resolved": "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz",
++      "integrity": "sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==",
++      "dev": true,
++      "hasInstallScript": true,
++      "license": "MIT",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": "^8.16.0 || ^10.6.0 || >=11.0.0"
++      }
++    },
++    "node_modules/is-it-check": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/is-it-check/-/is-it-check-1.1.1.tgz",
++      "integrity": "sha512-S4rkTZmd172HqtyUbdhb8Xm6OFB04vd8+0yvyiL9eH1/JL1P6/rzA22hfEqHt5tm9LJE6yUL9uvy+MdRAScg3w==",
++      "license": "MIT"
++    },
++    "node_modules/loglevel": {
++      "version": "1.9.2",
++      "resolved": "https://registry.npmjs.org/loglevel/-/loglevel-1.9.2.tgz",
++      "integrity": "sha512-HgMmCqIJSAKqo68l0rS2AanEWfkxaZ5wNiEFb5ggm08lDs9Xl2KxBlX3PTcaD2chBM1gXAYf491/M2Rv8Jwayg==",
++      "license": "MIT",
++      "engines": {
++        "node": ">= 0.6.0"
++      },
++      "funding": {
++        "type": "tidelift",
++        "url": "https://tidelift.com/funding/github/npm/loglevel"
++      }
++    },
++    "node_modules/nanoid": {
++      "version": "3.3.11",
++      "resolved": "https://registry.npmjs.org/nanoid/-/nanoid-3.3.11.tgz",
++      "integrity": "sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==",
++      "dev": true,
++      "funding": [
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/ai"
++        }
++      ],
++      "license": "MIT",
++      "bin": {
++        "nanoid": "bin/nanoid.cjs"
++      },
++      "engines": {
++        "node": "^10 || ^12 || ^13.7 || ^14 || >=15.0.1"
++      }
++    },
++    "node_modules/picocolors": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/picocolors/-/picocolors-1.1.1.tgz",
++      "integrity": "sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==",
++      "dev": true,
++      "license": "ISC"
++    },
++    "node_modules/postcss": {
++      "version": "8.5.6",
++      "resolved": "https://registry.npmjs.org/postcss/-/postcss-8.5.6.tgz",
++      "integrity": "sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==",
++      "dev": true,
++      "funding": [
++        {
++          "type": "opencollective",
++          "url": "https://opencollective.com/postcss/"
++        },
++        {
++          "type": "tidelift",
++          "url": "https://tidelift.com/funding/github/npm/postcss"
++        },
++        {
++          "type": "github",
++          "url": "https://github.com/sponsors/ai"
++        }
++      ],
++      "license": "MIT",
++      "dependencies": {
++        "nanoid": "^3.3.11",
++        "picocolors": "^1.1.1",
++        "source-map-js": "^1.2.1"
++      },
++      "engines": {
++        "node": "^10 || ^12 || >=14"
++      }
++    },
++    "node_modules/rollup": {
++      "version": "4.56.0",
++      "resolved": "https://registry.npmjs.org/rollup/-/rollup-4.56.0.tgz",
++      "integrity": "sha512-9FwVqlgUHzbXtDg9RCMgodF3Ua4Na6Gau+Sdt9vyCN4RhHfVKX2DCHy3BjMLTDd47ITDhYAnTwGulWTblJSDLg==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "@types/estree": "1.0.8"
++      },
++      "bin": {
++        "rollup": "dist/bin/rollup"
++      },
++      "engines": {
++        "node": ">=18.0.0",
++        "npm": ">=8.0.0"
++      },
++      "optionalDependencies": {
++        "@rollup/rollup-android-arm-eabi": "4.56.0",
++        "@rollup/rollup-android-arm64": "4.56.0",
++        "@rollup/rollup-darwin-arm64": "4.56.0",
++        "@rollup/rollup-darwin-x64": "4.56.0",
++        "@rollup/rollup-freebsd-arm64": "4.56.0",
++        "@rollup/rollup-freebsd-x64": "4.56.0",
++        "@rollup/rollup-linux-arm-gnueabihf": "4.56.0",
++        "@rollup/rollup-linux-arm-musleabihf": "4.56.0",
++        "@rollup/rollup-linux-arm64-gnu": "4.56.0",
++        "@rollup/rollup-linux-arm64-musl": "4.56.0",
++        "@rollup/rollup-linux-loong64-gnu": "4.56.0",
++        "@rollup/rollup-linux-loong64-musl": "4.56.0",
++        "@rollup/rollup-linux-ppc64-gnu": "4.56.0",
++        "@rollup/rollup-linux-ppc64-musl": "4.56.0",
++        "@rollup/rollup-linux-riscv64-gnu": "4.56.0",
++        "@rollup/rollup-linux-riscv64-musl": "4.56.0",
++        "@rollup/rollup-linux-s390x-gnu": "4.56.0",
++        "@rollup/rollup-linux-x64-gnu": "4.56.0",
++        "@rollup/rollup-linux-x64-musl": "4.56.0",
++        "@rollup/rollup-openbsd-x64": "4.56.0",
++        "@rollup/rollup-openharmony-arm64": "4.56.0",
++        "@rollup/rollup-win32-arm64-msvc": "4.56.0",
++        "@rollup/rollup-win32-ia32-msvc": "4.56.0",
++        "@rollup/rollup-win32-x64-gnu": "4.56.0",
++        "@rollup/rollup-win32-x64-msvc": "4.56.0",
++        "fsevents": "~2.3.2"
++      }
++    },
++    "node_modules/source-map-js": {
++      "version": "1.2.1",
++      "resolved": "https://registry.npmjs.org/source-map-js/-/source-map-js-1.2.1.tgz",
++      "integrity": "sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==",
++      "dev": true,
++      "license": "BSD-3-Clause",
++      "engines": {
++        "node": ">=0.10.0"
++      }
++    },
++    "node_modules/type-fest": {
++      "version": "2.19.0",
++      "resolved": "https://registry.npmjs.org/type-fest/-/type-fest-2.19.0.tgz",
++      "integrity": "sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==",
++      "license": "(MIT OR CC0-1.0)",
++      "engines": {
++        "node": ">=12.20"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/sindresorhus"
++      }
++    },
++    "node_modules/typescript": {
++      "version": "5.9.3",
++      "resolved": "https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz",
++      "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
++      "dev": true,
++      "license": "Apache-2.0",
++      "bin": {
++        "tsc": "bin/tsc",
++        "tsserver": "bin/tsserver"
++      },
++      "engines": {
++        "node": ">=14.17"
++      }
++    },
++    "node_modules/vite": {
++      "version": "5.4.21",
++      "resolved": "https://registry.npmjs.org/vite/-/vite-5.4.21.tgz",
++      "integrity": "sha512-o5a9xKjbtuhY6Bi5S3+HvbRERmouabWbyUcpXXUA1u+GNUKoROi9byOJ8M0nHbHYHkYICiMlqxkg1KkYmm25Sw==",
++      "dev": true,
++      "license": "MIT",
++      "dependencies": {
++        "esbuild": "^0.21.3",
++        "postcss": "^8.4.43",
++        "rollup": "^4.20.0"
++      },
++      "bin": {
++        "vite": "bin/vite.js"
++      },
++      "engines": {
++        "node": "^18.0.0 || >=20.0.0"
++      },
++      "funding": {
++        "url": "https://github.com/vitejs/vite?sponsor=1"
++      },
++      "optionalDependencies": {
++        "fsevents": "~2.3.3"
++      },
++      "peerDependencies": {
++        "@types/node": "^18.0.0 || >=20.0.0",
++        "less": "*",
++        "lightningcss": "^1.21.0",
++        "sass": "*",
++        "sass-embedded": "*",
++        "stylus": "*",
++        "sugarss": "*",
++        "terser": "^5.4.0"
++      },
++      "peerDependenciesMeta": {
++        "@types/node": {
++          "optional": true
++        },
++        "less": {
++          "optional": true
++        },
++        "lightningcss": {
++          "optional": true
++        },
++        "sass": {
++          "optional": true
++        },
++        "sass-embedded": {
++          "optional": true
++        },
++        "stylus": {
++          "optional": true
++        },
++        "sugarss": {
++          "optional": true
++        },
++        "terser": {
++          "optional": true
++        }
++      }
++    }
++  }
++}
+diff --git a/package.json b/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..0bc3e066cc07c59015f77eb70fe4158fabb39233
+--- /dev/null
++++ b/package.json
+@@ -0,0 +1,22 @@
++{
++  "name": "xkpasswd-extension",
++  "version": "0.1.0",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "dev": "vite",
++    "build": "npm run build:chromium && npm run build:firefox",
++    "build:chromium": "vite build --mode chromium",
++    "build:firefox": "vite build --mode firefox",
++    "test:smoke": "node scripts/smoke-test.mjs"
++  },
++  "dependencies": {
++    "crypto-random-string": "^5.0.0",
++    "is-it-check": "^1.0.12",
++    "loglevel": "^1.8.1"
++  },
++  "devDependencies": {
++    "typescript": "^5.6.3",
++    "vite": "^5.4.8"
++  }
++}
+diff --git a/public/icons/icon-128.svg b/public/icons/icon-128.svg
+new file mode 100644
+index 0000000000000000000000000000000000000000..fed22001e88022be6710386517f90686350fbb16
+--- /dev/null
++++ b/public/icons/icon-128.svg
+@@ -0,0 +1,4 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="XK">
++  <rect width="128" height="128" rx="24" fill="#38bdf8" />
++  <text x="64" y="82" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" fill="#0f172a" font-weight="700">XK</text>
++</svg>
+diff --git a/public/icons/icon-16.svg b/public/icons/icon-16.svg
+new file mode 100644
+index 0000000000000000000000000000000000000000..54b279a73c4ae2a7fe258437be1a7b4ddb10ea03
+--- /dev/null
++++ b/public/icons/icon-16.svg
+@@ -0,0 +1,4 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" role="img" aria-label="XK">
++  <rect width="16" height="16" rx="3" fill="#38bdf8" />
++  <text x="8" y="11" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#0f172a" font-weight="700">XK</text>
++</svg>
+diff --git a/public/icons/icon-48.svg b/public/icons/icon-48.svg
+new file mode 100644
+index 0000000000000000000000000000000000000000..919b7430b98f5cf96e77d32cec7e612eb5187fbe
+--- /dev/null
++++ b/public/icons/icon-48.svg
+@@ -0,0 +1,4 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" role="img" aria-label="XK">
++  <rect width="48" height="48" rx="10" fill="#38bdf8" />
++  <text x="24" y="31" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#0f172a" font-weight="700">XK</text>
++</svg>
+diff --git a/scripts/smoke-test.mjs b/scripts/smoke-test.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..06a292b672876307ca86a85a1f80a7b0066e9818
+--- /dev/null
++++ b/scripts/smoke-test.mjs
+@@ -0,0 +1,9 @@
++import {XKPasswd} from '../vendor/xkpasswd-js/src/xkpasswd.mjs';
++
++const generator = new XKPasswd();
++const result = generator.generatePassword(1);
++if (!result?.passwords?.[0]) {
++  console.error('Failed to generate a password');
++  process.exit(1);
++}
++console.log(`Generated password: ${result.passwords[0]}`);
+diff --git a/src/background/sw.ts b/src/background/sw.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..8ba1d5407960c95e4d30a2066adf8d379d240e12
+--- /dev/null
++++ b/src/background/sw.ts
+@@ -0,0 +1,74 @@
++import {mergeConfig} from '../core/config';
++import {generatePasswords, getBuiltinPresets, getDictionaries, resolveActiveConfig, validateCfg} from '../core/generator';
++import {loadConfig, resetConfig, saveConfig} from '../core/storage';
++
++const extensionApi = (globalThis as typeof globalThis & {browser?: any; chrome?: any}).browser ??
++  (globalThis as typeof globalThis & {chrome?: any}).chrome;
++
++if (extensionApi?.contextMenus) {
++  extensionApi.runtime.onInstalled.addListener(() => {
++    extensionApi.contextMenus.create({
++      id: 'xkpasswd-insert',
++      title: 'Insert XKPasswd password',
++      contexts: ['editable'],
++    });
++  });
++
++  extensionApi.contextMenus.onClicked.addListener(async (info: any, tab: any) => {
++    if (info.menuItemId !== 'xkpasswd-insert') {
++      return;
++    }
++    const config = await loadConfig();
++    if (!config.enableInsertion) {
++      return;
++    }
++    const passwords = await generatePasswords({...config, numPasswords: 1});
++    if (tab?.id) {
++      extensionApi.tabs.sendMessage(tab.id, {type: 'INSERT', text: passwords[0]});
++    }
++  });
++}
++
++extensionApi.runtime.onMessage.addListener((message: any) => {
++  return handleMessage(message);
++});
++
++async function handleMessage(message: any) {
++  switch (message?.type) {
++    case 'GENERATE': {
++      const config = await loadConfig();
++      const passwords = await generatePasswords(config);
++      return {passwords};
++    }
++    case 'GET_CONFIG': {
++      const config = await loadConfig();
++      return {
++        config,
++        activeConfig: resolveActiveConfig(config),
++        validation: validateCfg(resolveActiveConfig(config)),
++      };
++    }
++    case 'SET_CONFIG': {
++      const merged = mergeConfig(message.config);
++      await saveConfig(merged);
++      return {config: merged};
++    }
++    case 'RESET_CONFIG': {
++      const config = await resetConfig();
++      return {config, activeConfig: resolveActiveConfig(config)};
++    }
++    case 'GET_PRESETS': {
++      const config = await loadConfig();
++      return {
++        builtIn: getBuiltinPresets(),
++        custom: config.customPresets,
++        activePresetId: config.activePresetId,
++      };
++    }
++    case 'GET_DICTIONARIES': {
++      return {dictionaries: getDictionaries()};
++    }
++    default:
++      return {error: 'Unknown message type'};
++  }
++}
+diff --git a/src/content/insert.ts b/src/content/insert.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..7c9c600c8766d51154e9125e6dc7d82fc5f648c3
+--- /dev/null
++++ b/src/content/insert.ts
+@@ -0,0 +1,56 @@
++function dispatchInputEvents(target: HTMLElement) {
++  target.dispatchEvent(new Event('input', {bubbles: true}));
++  target.dispatchEvent(new Event('change', {bubbles: true}));
++}
++
++function insertIntoInput(target: HTMLInputElement | HTMLTextAreaElement, text: string) {
++  const start = target.selectionStart ?? target.value.length;
++  const end = target.selectionEnd ?? target.value.length;
++  target.setRangeText(text, start, end, 'end');
++  dispatchInputEvents(target);
++}
++
++function insertIntoContentEditable(target: HTMLElement, text: string) {
++  const selection = window.getSelection();
++  if (!selection) {
++    return;
++  }
++  if (document.queryCommandSupported('insertText')) {
++    document.execCommand('insertText', false, text);
++  } else if (selection.rangeCount > 0) {
++    const range = selection.getRangeAt(0);
++    range.deleteContents();
++    range.insertNode(document.createTextNode(text));
++    range.collapse(false);
++    selection.removeAllRanges();
++    selection.addRange(range);
++  }
++  dispatchInputEvents(target);
++}
++
++function insertText(text: string) {
++  const active = document.activeElement as HTMLElement | null;
++  if (!active) {
++    return;
++  }
++  if (active instanceof HTMLInputElement) {
++    if (['checkbox', 'radio', 'button', 'submit', 'reset', 'file'].includes(active.type)) {
++      return;
++    }
++    insertIntoInput(active, text);
++    return;
++  }
++  if (active instanceof HTMLTextAreaElement) {
++    insertIntoInput(active, text);
++    return;
++  }
++  if (active.isContentEditable) {
++    insertIntoContentEditable(active, text);
++  }
++}
++
++chrome.runtime.onMessage.addListener(message => {
++  if (message?.type === 'INSERT' && typeof message.text === 'string') {
++    insertText(message.text);
++  }
++});
+diff --git a/src/core/config.ts b/src/core/config.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..c699f47c182814d244cc06e8f67219fe57e743c4
+--- /dev/null
++++ b/src/core/config.ts
+@@ -0,0 +1,86 @@
++export type SeparatorType = 'NONE' | 'RANDOM' | 'FIXED';
++export type PaddingType = 'NONE' | 'FIXED' | 'ADAPTIVE';
++export type PaddingCharacterType = 'RANDOM' | 'FIXED';
++export type CaseTransform = 'NONE' | 'CAPITALISE' | 'INVERT' | 'RANDOM' | 'ALTERNATE';
++
++export interface XkpasswdConfig {
++  symbol_alphabet: string;
++  word_length_min: number;
++  word_length_max: number;
++  num_words: number;
++  separator_type: SeparatorType;
++  separator_character: string;
++  separator_alphabet?: string;
++  padding_digits_before: number;
++  padding_digits_after: number;
++  padding_type: PaddingType;
++  padding_character_type: PaddingCharacterType;
++  padding_character: string;
++  padding_alphabet?: string;
++  padding_characters_before: number;
++  padding_characters_after: number;
++  pad_to_length?: number;
++  case_transform: CaseTransform;
++  allow_accents?: number;
++  random_increment?: string;
++}
++
++export interface StoredPreset {
++  id: string;
++  name: string;
++  description: string;
++  config: XkpasswdConfig;
++}
++
++export interface ExtensionConfig {
++  numPasswords: number;
++  activePresetId: string;
++  customPresets: StoredPreset[];
++  customConfig: XkpasswdConfig;
++  enableInsertion: boolean;
++  dictionaryId: string;
++}
++
++export const DEFAULT_XKPASSWD_CONFIG: XkpasswdConfig = {
++  symbol_alphabet: '!@$%^&*-_+=:|~?/.;',
++  word_length_min: 4,
++  word_length_max: 8,
++  num_words: 3,
++  case_transform: 'CAPITALISE',
++  separator_type: 'RANDOM',
++  separator_character: '',
++  padding_digits_before: 2,
++  padding_digits_after: 2,
++  padding_type: 'FIXED',
++  padding_character_type: 'RANDOM',
++  padding_character: '',
++  padding_characters_before: 2,
++  padding_characters_after: 2,
++  allow_accents: 0,
++  random_increment: 'AUTO',
++};
++
++export const DEFAULT_CONFIG: ExtensionConfig = {
++  numPasswords: 3,
++  activePresetId: 'DEFAULT',
++  customPresets: [],
++  customConfig: DEFAULT_XKPASSWD_CONFIG,
++  enableInsertion: true,
++  dictionaryId: 'EN',
++};
++
++export function mergeConfig(partial?: Partial<ExtensionConfig>): ExtensionConfig {
++  return {
++    ...DEFAULT_CONFIG,
++    ...partial,
++    customConfig: {
++      ...DEFAULT_XKPASSWD_CONFIG,
++      ...(partial?.customConfig ?? {}),
++    },
++    customPresets: partial?.customPresets ?? DEFAULT_CONFIG.customPresets,
++  };
++}
++
++export function cloneConfig(config: ExtensionConfig): ExtensionConfig {
++  return JSON.parse(JSON.stringify(config)) as ExtensionConfig;
++}
+diff --git a/src/core/generator.ts b/src/core/generator.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..d533d14e148521084bf6f757e0371a60bfcb8504
+--- /dev/null
++++ b/src/core/generator.ts
+@@ -0,0 +1,114 @@
++import {DEFAULT_XKPASSWD_CONFIG, ExtensionConfig, StoredPreset, XkpasswdConfig} from './config';
++import {XKPasswd} from '../../vendor/xkpasswd-js/src/xkpasswd.mjs';
++import {Presets} from '../../vendor/xkpasswd-js/src/presets.mjs';
++
++const CONFIG_KEYS: Array<keyof XkpasswdConfig> = [
++  'symbol_alphabet',
++  'word_length_min',
++  'word_length_max',
++  'num_words',
++  'separator_type',
++  'separator_character',
++  'separator_alphabet',
++  'padding_digits_before',
++  'padding_digits_after',
++  'padding_type',
++  'padding_character_type',
++  'padding_character',
++  'padding_alphabet',
++  'padding_characters_before',
++  'padding_characters_after',
++  'pad_to_length',
++  'case_transform',
++  'allow_accents',
++  'random_increment',
++];
++
++function toXkpasswdConfig(config: Partial<XkpasswdConfig>): XkpasswdConfig {
++  const next: XkpasswdConfig = {...DEFAULT_XKPASSWD_CONFIG};
++  CONFIG_KEYS.forEach(key => {
++    if (config[key] !== undefined) {
++      next[key] = config[key] as never;
++    }
++  });
++  return next;
++}
++
++function findCustomPreset(
++  customPresets: StoredPreset[],
++  id: string,
++): StoredPreset | undefined {
++  return customPresets.find(preset => preset.id === id);
++}
++
++export function getBuiltinPresets(): StoredPreset[] {
++  const presets = new Presets();
++  return presets.getPresets().map(name => {
++    const preset = new Presets(name);
++    const current = preset.getCurrent();
++    return {
++      id: name,
++      name,
++      description: preset.description(),
++      config: toXkpasswdConfig(current.config),
++    };
++  });
++}
++
++export function getDictionaries() {
++  return [{id: 'EN', name: 'English (built-in)'}];
++}
++
++export function resolveActiveConfig(config: ExtensionConfig): XkpasswdConfig {
++  const builtin = getBuiltinPresets().find(preset => preset.id === config.activePresetId);
++  if (builtin) {
++    return toXkpasswdConfig(builtin.config);
++  }
++  const customPreset = findCustomPreset(config.customPresets, config.activePresetId);
++  if (customPreset) {
++    return toXkpasswdConfig(customPreset.config);
++  }
++  if (config.activePresetId === 'CUSTOM') {
++    return toXkpasswdConfig(config.customConfig);
++  }
++  return toXkpasswdConfig(config.customConfig);
++}
++
++export function validateCfg(config: XkpasswdConfig): {ok: boolean; errors: string[]} {
++  const errors: string[] = [];
++  if (config.num_words < 2) {
++    errors.push('Number of words must be at least 2.');
++  }
++  if (config.word_length_min < 3 || config.word_length_max < 3) {
++    errors.push('Word lengths must be at least 3.');
++  }
++  if (config.word_length_min > config.word_length_max) {
++    errors.push('Minimum word length must be less than or equal to maximum.');
++  }
++  if (config.separator_type === 'FIXED' && config.separator_character.length !== 1) {
++    errors.push('Fixed separator must be a single character.');
++  }
++  if (config.padding_type === 'ADAPTIVE' && (!config.pad_to_length || config.pad_to_length < 1)) {
++    errors.push('Adaptive padding requires a target length.');
++  }
++  return {ok: errors.length === 0, errors};
++}
++
++export async function generatePasswords(extensionConfig: ExtensionConfig): Promise<string[]> {
++  const xkpasswd = new XKPasswd();
++  const builtInNames = new Set(new Presets().getPresets());
++
++  if (builtInNames.has(extensionConfig.activePresetId)) {
++    xkpasswd.setPreset(extensionConfig.activePresetId);
++  } else {
++    const activeConfig = resolveActiveConfig(extensionConfig);
++    xkpasswd.setCustomPreset(activeConfig);
++  }
++
++  const {passwords} = xkpasswd.generatePassword(extensionConfig.numPasswords);
++  return passwords;
++}
++
++export function asPresetList(customPresets: StoredPreset[]): StoredPreset[] {
++  return [...getBuiltinPresets(), ...customPresets];
++}
+diff --git a/src/core/storage.ts b/src/core/storage.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..2add8366c4ad12c4357f7d5e8db0b68a1bdca216
+--- /dev/null
++++ b/src/core/storage.ts
+@@ -0,0 +1,31 @@
++import {DEFAULT_CONFIG, ExtensionConfig, mergeConfig} from './config';
++
++function getExtensionApi() {
++  return (globalThis as typeof globalThis & {browser?: any; chrome?: any}).browser ??
++    (globalThis as typeof globalThis & {chrome?: any}).chrome;
++}
++
++function getStorageArea() {
++  const api = getExtensionApi();
++  if (!api?.storage) {
++    throw new Error('Storage API unavailable');
++  }
++  return api.storage.sync ?? api.storage.local;
++}
++
++export async function loadConfig(): Promise<ExtensionConfig> {
++  const storage = getStorageArea();
++  const result = await storage.get('config');
++  return mergeConfig(result?.config ?? {});
++}
++
++export async function saveConfig(config: ExtensionConfig): Promise<void> {
++  const storage = getStorageArea();
++  await storage.set({config});
++}
++
++export async function resetConfig(): Promise<ExtensionConfig> {
++  const storage = getStorageArea();
++  await storage.set({config: DEFAULT_CONFIG});
++  return DEFAULT_CONFIG;
++}
+diff --git a/src/manifest/manifest.chromium.json b/src/manifest/manifest.chromium.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..c79657bb4a5486bdaad5eab5056422c97347f68e
+--- /dev/null
++++ b/src/manifest/manifest.chromium.json
+@@ -0,0 +1,32 @@
++{
++  "manifest_version": 3,
++  "name": "XKPasswd Generator",
++  "description": "Offline xkpasswd-style password generator.",
++  "version": "0.1.0",
++  "action": {
++    "default_popup": "ui/popup/index.html",
++    "default_icon": {
++      "16": "icons/icon-16.svg",
++      "48": "icons/icon-48.svg",
++      "128": "icons/icon-128.svg"
++    }
++  },
++  "options_page": "ui/options/index.html",
++  "background": {
++    "service_worker": "background/sw.js",
++    "type": "module"
++  },
++  "permissions": ["storage", "clipboardWrite", "contextMenus"],
++  "host_permissions": ["<all_urls>"],
++  "content_scripts": [
++    {
++      "matches": ["<all_urls>"],
++      "js": ["content/insert.js"]
++    }
++  ],
++  "icons": {
++    "16": "icons/icon-16.svg",
++    "48": "icons/icon-48.svg",
++    "128": "icons/icon-128.svg"
++  }
++}
+diff --git a/src/manifest/manifest.firefox.json b/src/manifest/manifest.firefox.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..cdf39d07c3dc30ca249c08083a21ccd657a3e206
+--- /dev/null
++++ b/src/manifest/manifest.firefox.json
+@@ -0,0 +1,38 @@
++{
++  "manifest_version": 3,
++  "name": "XKPasswd Generator",
++  "description": "Offline xkpasswd-style password generator.",
++  "version": "0.1.0",
++  "action": {
++    "default_popup": "ui/popup/index.html",
++    "default_icon": {
++      "16": "icons/icon-16.svg",
++      "48": "icons/icon-48.svg",
++      "128": "icons/icon-128.svg"
++    }
++  },
++  "options_page": "ui/options/index.html",
++  "background": {
++    "service_worker": "background/sw.js",
++    "type": "module"
++  },
++  "permissions": ["storage", "clipboardWrite", "contextMenus"],
++  "host_permissions": ["<all_urls>"],
++  "content_scripts": [
++    {
++      "matches": ["<all_urls>"],
++      "js": ["content/insert.js"]
++    }
++  ],
++  "icons": {
++    "16": "icons/icon-16.svg",
++    "48": "icons/icon-48.svg",
++    "128": "icons/icon-128.svg"
++  },
++  "browser_specific_settings": {
++    "gecko": {
++      "id": "xkpasswd@example.com",
++      "strict_min_version": "120.0"
++    }
++  }
++}
+diff --git a/src/ui/options/index.html b/src/ui/options/index.html
+new file mode 100644
+index 0000000000000000000000000000000000000000..eaf147d7dcf3eb476670ad8fc8fa949125e6fd18
+--- /dev/null
++++ b/src/ui/options/index.html
+@@ -0,0 +1,183 @@
++<!doctype html>
++<html lang="en">
++  <head>
++    <meta charset="UTF-8" />
++    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
++    <title>XKPasswd Options</title>
++    <link rel="stylesheet" href="./options.css" />
++  </head>
++  <body>
++    <main class="options">
++      <header>
++        <h1>XKPasswd Options</h1>
++        <p>Configure password generation, presets, and storage.</p>
++      </header>
++
++      <section class="card">
++        <h2>Presets</h2>
++        <div class="grid">
++          <label>
++            Active preset
++            <select id="preset-select"></select>
++          </label>
++          <button id="apply-preset" type="button">Apply preset</button>
++        </div>
++        <div class="grid">
++          <label>
++            Save current as preset
++            <input id="preset-name" type="text" placeholder="Preset name" />
++          </label>
++          <label>
++            Description
++            <input id="preset-description" type="text" placeholder="Optional description" />
++          </label>
++          <button id="save-preset" type="button">Save preset</button>
++        </div>
++        <div class="grid">
++          <label>
++            Manage custom preset
++            <select id="custom-preset-select"></select>
++          </label>
++          <label>
++            Rename
++            <input id="rename-preset" type="text" placeholder="New name" />
++          </label>
++          <button id="rename-button" type="button">Rename</button>
++          <button id="delete-button" type="button">Delete</button>
++        </div>
++      </section>
++
++      <section class="card">
++        <h2>Generation settings</h2>
++        <form id="config-form" class="form-grid">
++          <label>
++            Password count
++            <input id="num-passwords" type="number" min="1" max="50" />
++          </label>
++          <label>
++            Words per password
++            <input id="num-words" type="number" min="2" max="10" />
++          </label>
++          <label>
++            Word length min
++            <input id="word-min" type="number" min="3" max="20" />
++          </label>
++          <label>
++            Word length max
++            <input id="word-max" type="number" min="3" max="20" />
++          </label>
++          <label>
++            Case transform
++            <select id="case-transform">
++              <option value="NONE">None</option>
++              <option value="CAPITALISE">Capitalise</option>
++              <option value="INVERT">Invert</option>
++              <option value="RANDOM">Random</option>
++              <option value="ALTERNATE">Alternate</option>
++            </select>
++          </label>
++          <label>
++            Separator type
++            <select id="separator-type">
++              <option value="RANDOM">Random</option>
++              <option value="FIXED">Fixed</option>
++              <option value="NONE">None</option>
++            </select>
++          </label>
++          <label>
++            Separator character
++            <input id="separator-char" type="text" maxlength="1" />
++          </label>
++          <label>
++            Padding type
++            <select id="padding-type">
++              <option value="FIXED">Fixed</option>
++              <option value="ADAPTIVE">Adaptive</option>
++              <option value="NONE">None</option>
++            </select>
++          </label>
++          <label>
++            Pad to length (adaptive)
++            <input id="pad-length" type="number" min="1" max="128" />
++          </label>
++          <label>
++            Padding character type
++            <select id="padding-char-type">
++              <option value="RANDOM">Random</option>
++              <option value="FIXED">Fixed</option>
++            </select>
++          </label>
++          <label>
++            Padding character
++            <input id="padding-char" type="text" maxlength="1" />
++          </label>
++          <label>
++            Digits before
++            <input id="digits-before" type="number" min="0" max="10" />
++          </label>
++          <label>
++            Digits after
++            <input id="digits-after" type="number" min="0" max="10" />
++          </label>
++          <label>
++            Padding before
++            <input id="padding-before" type="number" min="0" max="10" />
++          </label>
++          <label>
++            Padding after
++            <input id="padding-after" type="number" min="0" max="10" />
++          </label>
++          <label>
++            Symbol alphabet
++            <input id="symbol-alphabet" type="text" />
++          </label>
++          <label>
++            Separator alphabet (optional)
++            <input id="separator-alphabet" type="text" />
++          </label>
++          <label>
++            Padding alphabet (optional)
++            <input id="padding-alphabet" type="text" />
++          </label>
++          <label>
++            Allow accents
++            <input id="allow-accents" type="checkbox" />
++          </label>
++          <label>
++            Enable insertion
++            <input id="enable-insertion" type="checkbox" />
++          </label>
++          <label>
++            Dictionary
++            <select id="dictionary"></select>
++          </label>
++        </form>
++        <div class="actions">
++          <button id="save-config" type="button">Save settings</button>
++          <button id="reset-config" type="button">Reset defaults</button>
++        </div>
++        <p id="validation" class="validation"></p>
++      </section>
++
++      <section class="card">
++        <h2>Import / Export</h2>
++        <textarea id="config-json" rows="6" spellcheck="false"></textarea>
++        <div class="actions">
++          <button id="export-config" type="button">Export JSON</button>
++          <button id="import-config" type="button">Import JSON</button>
++        </div>
++        <p id="import-status" class="validation"></p>
++      </section>
++
++      <section class="card">
++        <h2>About</h2>
++        <p>
++          XKPasswd uses the official <code>xkpasswd-js</code> library by Bartificer to generate
++          passwords completely offline.
++        </p>
++      </section>
++    </main>
++
++    <script type="module" src="./options.ts"></script>
++  </body>
++</html>
+diff --git a/src/ui/options/options.css b/src/ui/options/options.css
+new file mode 100644
+index 0000000000000000000000000000000000000000..a909b8b16bdd411f1d8131c71fdce9cd36056a8a
+--- /dev/null
++++ b/src/ui/options/options.css
+@@ -0,0 +1,92 @@
++:root {
++  font-family: "Inter", system-ui, sans-serif;
++  color-scheme: light dark;
++  font-size: 14px;
++}
++
++body {
++  margin: 0;
++  background: #0f172a;
++  color: #f8fafc;
++}
++
++.options {
++  max-width: 900px;
++  margin: 0 auto;
++  padding: 24px;
++  display: flex;
++  flex-direction: column;
++  gap: 20px;
++}
++
++header h1 {
++  margin: 0 0 8px 0;
++}
++
++.card {
++  background: #1e293b;
++  border-radius: 12px;
++  padding: 16px;
++  display: flex;
++  flex-direction: column;
++  gap: 12px;
++}
++
++.grid {
++  display: grid;
++  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
++  gap: 10px;
++  align-items: end;
++}
++
++.form-grid {
++  display: grid;
++  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
++  gap: 10px;
++}
++
++label {
++  display: flex;
++  flex-direction: column;
++  gap: 4px;
++  font-size: 12px;
++}
++
++input,
++select,
++textarea {
++  background: #0f172a;
++  color: inherit;
++  border: 1px solid #334155;
++  border-radius: 6px;
++  padding: 6px 8px;
++}
++
++textarea {
++  width: 100%;
++}
++
++.actions {
++  display: flex;
++  gap: 8px;
++}
++
++button {
++  background: #38bdf8;
++  color: #0f172a;
++  border: none;
++  border-radius: 8px;
++  padding: 8px 12px;
++  font-weight: 600;
++  cursor: pointer;
++}
++
++button.secondary {
++  background: #334155;
++  color: inherit;
++}
++
++.validation {
++  color: #facc15;
++  min-height: 18px;
++}
+diff --git a/src/ui/options/options.ts b/src/ui/options/options.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..71d21f44cedc3aa570f7669be068527b78b4228b
+--- /dev/null
++++ b/src/ui/options/options.ts
+@@ -0,0 +1,303 @@
++import type {ExtensionConfig, StoredPreset, XkpasswdConfig} from '../../core/config';
++
++const presetSelect = document.querySelector<HTMLSelectElement>('#preset-select');
++const applyPresetButton = document.querySelector<HTMLButtonElement>('#apply-preset');
++const presetNameInput = document.querySelector<HTMLInputElement>('#preset-name');
++const presetDescriptionInput = document.querySelector<HTMLInputElement>('#preset-description');
++const savePresetButton = document.querySelector<HTMLButtonElement>('#save-preset');
++const customPresetSelect = document.querySelector<HTMLSelectElement>('#custom-preset-select');
++const renamePresetInput = document.querySelector<HTMLInputElement>('#rename-preset');
++const renameButton = document.querySelector<HTMLButtonElement>('#rename-button');
++const deleteButton = document.querySelector<HTMLButtonElement>('#delete-button');
++
++const numPasswordsInput = document.querySelector<HTMLInputElement>('#num-passwords');
++const numWordsInput = document.querySelector<HTMLInputElement>('#num-words');
++const wordMinInput = document.querySelector<HTMLInputElement>('#word-min');
++const wordMaxInput = document.querySelector<HTMLInputElement>('#word-max');
++const caseTransformSelect = document.querySelector<HTMLSelectElement>('#case-transform');
++const separatorTypeSelect = document.querySelector<HTMLSelectElement>('#separator-type');
++const separatorCharInput = document.querySelector<HTMLInputElement>('#separator-char');
++const paddingTypeSelect = document.querySelector<HTMLSelectElement>('#padding-type');
++const padLengthInput = document.querySelector<HTMLInputElement>('#pad-length');
++const paddingCharTypeSelect = document.querySelector<HTMLSelectElement>('#padding-char-type');
++const paddingCharInput = document.querySelector<HTMLInputElement>('#padding-char');
++const digitsBeforeInput = document.querySelector<HTMLInputElement>('#digits-before');
++const digitsAfterInput = document.querySelector<HTMLInputElement>('#digits-after');
++const paddingBeforeInput = document.querySelector<HTMLInputElement>('#padding-before');
++const paddingAfterInput = document.querySelector<HTMLInputElement>('#padding-after');
++const symbolAlphabetInput = document.querySelector<HTMLInputElement>('#symbol-alphabet');
++const separatorAlphabetInput = document.querySelector<HTMLInputElement>('#separator-alphabet');
++const paddingAlphabetInput = document.querySelector<HTMLInputElement>('#padding-alphabet');
++const allowAccentsInput = document.querySelector<HTMLInputElement>('#allow-accents');
++const enableInsertionInput = document.querySelector<HTMLInputElement>('#enable-insertion');
++const dictionarySelect = document.querySelector<HTMLSelectElement>('#dictionary');
++
++const saveConfigButton = document.querySelector<HTMLButtonElement>('#save-config');
++const resetConfigButton = document.querySelector<HTMLButtonElement>('#reset-config');
++const validationText = document.querySelector<HTMLParagraphElement>('#validation');
++
++const configJsonArea = document.querySelector<HTMLTextAreaElement>('#config-json');
++const exportButton = document.querySelector<HTMLButtonElement>('#export-config');
++const importButton = document.querySelector<HTMLButtonElement>('#import-config');
++const importStatus = document.querySelector<HTMLParagraphElement>('#import-status');
++
++if (!presetSelect || !applyPresetButton || !presetNameInput || !presetDescriptionInput || !savePresetButton ||
++  !customPresetSelect || !renamePresetInput || !renameButton || !deleteButton ||
++  !numPasswordsInput || !numWordsInput || !wordMinInput || !wordMaxInput || !caseTransformSelect ||
++  !separatorTypeSelect || !separatorCharInput || !paddingTypeSelect || !padLengthInput ||
++  !paddingCharTypeSelect || !paddingCharInput || !digitsBeforeInput || !digitsAfterInput ||
++  !paddingBeforeInput || !paddingAfterInput || !symbolAlphabetInput || !separatorAlphabetInput ||
++  !paddingAlphabetInput || !allowAccentsInput || !enableInsertionInput || !dictionarySelect ||
++  !saveConfigButton || !resetConfigButton || !validationText || !configJsonArea || !exportButton ||
++  !importButton || !importStatus) {
++  throw new Error('Options elements missing');
++}
++
++const runtime = chrome.runtime;
++
++async function sendMessage<T>(type: string, payload?: Record<string, unknown>): Promise<T> {
++  return runtime.sendMessage({type, ...payload});
++}
++
++let currentConfig: ExtensionConfig | null = null;
++let builtInPresets: StoredPreset[] = [];
++
++function populatePresetSelect(activePresetId: string, customPresets: StoredPreset[]) {
++  presetSelect.innerHTML = '';
++  const builtinGroup = document.createElement('optgroup');
++  builtinGroup.label = 'Built-in';
++  builtInPresets.forEach(preset => {
++    const option = document.createElement('option');
++    option.value = preset.id;
++    option.textContent = preset.name;
++    builtinGroup.appendChild(option);
++  });
++  presetSelect.appendChild(builtinGroup);
++
++  const customGroup = document.createElement('optgroup');
++  customGroup.label = 'Custom';
++  customPresets.forEach(preset => {
++    const option = document.createElement('option');
++    option.value = preset.id;
++    option.textContent = preset.name;
++    customGroup.appendChild(option);
++  });
++  const customOption = document.createElement('option');
++  customOption.value = 'CUSTOM';
++  customOption.textContent = 'Custom (unsaved)';
++  customGroup.appendChild(customOption);
++  presetSelect.appendChild(customGroup);
++
++  presetSelect.value = activePresetId;
++
++  customPresetSelect.innerHTML = '';
++  customPresets.forEach(preset => {
++    const option = document.createElement('option');
++    option.value = preset.id;
++    option.textContent = preset.name;
++    customPresetSelect.appendChild(option);
++  });
++}
++
++function populateDictionarySelect(dictionaries: Array<{id: string; name: string}>, activeId: string) {
++  dictionarySelect.innerHTML = '';
++  dictionaries.forEach(dict => {
++    const option = document.createElement('option');
++    option.value = dict.id;
++    option.textContent = dict.name;
++    dictionarySelect.appendChild(option);
++  });
++  dictionarySelect.value = activeId;
++}
++
++function setFormValues(config: ExtensionConfig, activeConfig: XkpasswdConfig) {
++  numPasswordsInput.value = String(config.numPasswords);
++  numWordsInput.value = String(activeConfig.num_words);
++  wordMinInput.value = String(activeConfig.word_length_min);
++  wordMaxInput.value = String(activeConfig.word_length_max);
++  caseTransformSelect.value = activeConfig.case_transform;
++  separatorTypeSelect.value = activeConfig.separator_type;
++  separatorCharInput.value = activeConfig.separator_character ?? '';
++  paddingTypeSelect.value = activeConfig.padding_type;
++  padLengthInput.value = String(activeConfig.pad_to_length ?? '');
++  paddingCharTypeSelect.value = activeConfig.padding_character_type;
++  paddingCharInput.value = activeConfig.padding_character ?? '';
++  digitsBeforeInput.value = String(activeConfig.padding_digits_before);
++  digitsAfterInput.value = String(activeConfig.padding_digits_after);
++  paddingBeforeInput.value = String(activeConfig.padding_characters_before);
++  paddingAfterInput.value = String(activeConfig.padding_characters_after);
++  symbolAlphabetInput.value = activeConfig.symbol_alphabet;
++  separatorAlphabetInput.value = activeConfig.separator_alphabet ?? '';
++  paddingAlphabetInput.value = activeConfig.padding_alphabet ?? '';
++  allowAccentsInput.checked = Boolean(activeConfig.allow_accents);
++  enableInsertionInput.checked = config.enableInsertion;
++  dictionarySelect.value = config.dictionaryId;
++}
++
++function buildConfigFromForm(config: ExtensionConfig): ExtensionConfig {
++  const customConfig: XkpasswdConfig = {
++    ...config.customConfig,
++    num_words: Number(numWordsInput.value),
++    word_length_min: Number(wordMinInput.value),
++    word_length_max: Number(wordMaxInput.value),
++    case_transform: caseTransformSelect.value as XkpasswdConfig['case_transform'],
++    separator_type: separatorTypeSelect.value as XkpasswdConfig['separator_type'],
++    separator_character: separatorCharInput.value.trim().slice(0, 1),
++    padding_type: paddingTypeSelect.value as XkpasswdConfig['padding_type'],
++    pad_to_length: padLengthInput.value ? Number(padLengthInput.value) : undefined,
++    padding_character_type: paddingCharTypeSelect.value as XkpasswdConfig['padding_character_type'],
++    padding_character: paddingCharInput.value.trim().slice(0, 1),
++    padding_digits_before: Number(digitsBeforeInput.value),
++    padding_digits_after: Number(digitsAfterInput.value),
++    padding_characters_before: Number(paddingBeforeInput.value),
++    padding_characters_after: Number(paddingAfterInput.value),
++    symbol_alphabet: symbolAlphabetInput.value,
++    separator_alphabet: separatorAlphabetInput.value || undefined,
++    padding_alphabet: paddingAlphabetInput.value || undefined,
++    allow_accents: allowAccentsInput.checked ? 1 : 0,
++  };
++
++  return {
++    ...config,
++    numPasswords: Number(numPasswordsInput.value),
++    customConfig,
++    enableInsertion: enableInsertionInput.checked,
++    dictionaryId: dictionarySelect.value,
++    activePresetId: 'CUSTOM',
++  };
++}
++
++async function loadConfig() {
++  const response = await sendMessage<{config: ExtensionConfig; activeConfig: XkpasswdConfig; validation: {ok: boolean; errors: string[]}}>('GET_CONFIG');
++  currentConfig = response.config;
++  setFormValues(response.config, response.activeConfig);
++  validationText.textContent = response.validation.ok ? '' : response.validation.errors.join(' ');
++}
++
++async function loadPresets() {
++  const response = await sendMessage<{builtIn: StoredPreset[]; custom: StoredPreset[]; activePresetId: string}>('GET_PRESETS');
++  builtInPresets = response.builtIn;
++  populatePresetSelect(response.activePresetId, response.custom);
++}
++
++async function loadDictionaries() {
++  const response = await sendMessage<{dictionaries: Array<{id: string; name: string}>}>('GET_DICTIONARIES');
++  if (currentConfig) {
++    populateDictionarySelect(response.dictionaries, currentConfig.dictionaryId);
++  } else {
++    populateDictionarySelect(response.dictionaries, response.dictionaries[0]?.id ?? 'EN');
++  }
++}
++
++applyPresetButton.addEventListener('click', async () => {
++  if (!currentConfig) {
++    return;
++  }
++  const updated: ExtensionConfig = {
++    ...currentConfig,
++    activePresetId: presetSelect.value,
++  };
++  const result = await sendMessage<{config: ExtensionConfig}>('SET_CONFIG', {config: updated});
++  currentConfig = result.config;
++  await loadConfig();
++});
++
++savePresetButton.addEventListener('click', async () => {
++  if (!currentConfig) {
++    return;
++  }
++  const name = presetNameInput.value.trim();
++  if (!name) {
++    importStatus.textContent = 'Preset name is required.';
++    return;
++  }
++  const updated = buildConfigFromForm(currentConfig);
++  const newPreset: StoredPreset = {
++    id: `custom-${Date.now()}`,
++    name,
++    description: presetDescriptionInput.value.trim() || 'Custom preset',
++    config: updated.customConfig,
++  };
++  const nextConfig: ExtensionConfig = {
++    ...updated,
++    customPresets: [...updated.customPresets, newPreset],
++    activePresetId: newPreset.id,
++  };
++  await sendMessage('SET_CONFIG', {config: nextConfig});
++  presetNameInput.value = '';
++  presetDescriptionInput.value = '';
++  await loadPresets();
++  await loadConfig();
++});
++
++renameButton.addEventListener('click', async () => {
++  if (!currentConfig) {
++    return;
++  }
++  const selectedId = customPresetSelect.value;
++  const newName = renamePresetInput.value.trim();
++  if (!selectedId || !newName) {
++    return;
++  }
++  const updatedPresets = currentConfig.customPresets.map(preset =>
++    preset.id === selectedId ? {...preset, name: newName} : preset,
++  );
++  const updated = {...currentConfig, customPresets: updatedPresets};
++  await sendMessage('SET_CONFIG', {config: updated});
++  renamePresetInput.value = '';
++  await loadPresets();
++});
++
++deleteButton.addEventListener('click', async () => {
++  if (!currentConfig) {
++    return;
++  }
++  const selectedId = customPresetSelect.value;
++  if (!selectedId) {
++    return;
++  }
++  const updatedPresets = currentConfig.customPresets.filter(preset => preset.id !== selectedId);
++  const updated = {...currentConfig, customPresets: updatedPresets};
++  await sendMessage('SET_CONFIG', {config: updated});
++  await loadPresets();
++});
++
++saveConfigButton.addEventListener('click', async () => {
++  if (!currentConfig) {
++    return;
++  }
++  const updated = buildConfigFromForm(currentConfig);
++  const result = await sendMessage<{config: ExtensionConfig}>('SET_CONFIG', {config: updated});
++  currentConfig = result.config;
++  await loadConfig();
++});
++
++resetConfigButton.addEventListener('click', async () => {
++  await sendMessage('RESET_CONFIG');
++  await loadPresets();
++  await loadConfig();
++});
++
++exportButton.addEventListener('click', () => {
++  if (!currentConfig) {
++    return;
++  }
++  configJsonArea.value = JSON.stringify(currentConfig, null, 2);
++  importStatus.textContent = 'Exported current configuration.';
++});
++
++importButton.addEventListener('click', async () => {
++  try {
++    const parsed = JSON.parse(configJsonArea.value);
++    await sendMessage('SET_CONFIG', {config: parsed});
++    importStatus.textContent = 'Imported configuration.';
++    await loadPresets();
++    await loadConfig();
++  } catch (error) {
++    importStatus.textContent = 'Invalid JSON configuration.';
++  }
++});
++
++await loadPresets();
++await loadConfig();
++await loadDictionaries();
+diff --git a/src/ui/popup/index.html b/src/ui/popup/index.html
+new file mode 100644
+index 0000000000000000000000000000000000000000..f280d95c0a7f4f4764a85776601f357503b47bed
+--- /dev/null
++++ b/src/ui/popup/index.html
+@@ -0,0 +1,49 @@
++<!doctype html>
++<html lang="en">
++  <head>
++    <meta charset="UTF-8" />
++    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
++    <title>XKPasswd</title>
++    <link rel="stylesheet" href="./popup.css" />
++  </head>
++  <body>
++    <main class="popup">
++      <header class="popup__header">
++        <h1>XKPasswd</h1>
++        <button id="open-options" class="link-button" type="button">Options</button>
++      </header>
++
++      <section class="popup__controls">
++        <label>
++          # Passwords
++          <input id="num-passwords" type="number" min="1" max="20" />
++        </label>
++        <label>
++          # Words
++          <input id="num-words" type="number" min="2" max="10" />
++        </label>
++        <label>
++          Separator
++          <input id="separator" type="text" maxlength="1" placeholder="Random" />
++        </label>
++        <label>
++          Preset
++          <select id="preset"></select>
++        </label>
++      </section>
++
++      <button id="generate" class="primary" type="button">Generate</button>
++      <div id="toast" class="toast" hidden>Copied!</div>
++
++      <section class="popup__results">
++        <div class="popup__results-header">
++          <h2>Passwords</h2>
++          <button id="copy-all" type="button">Copy all</button>
++        </div>
++        <ul id="password-list" class="password-list"></ul>
++      </section>
++    </main>
++
++    <script type="module" src="./popup.ts"></script>
++  </body>
++</html>
+diff --git a/src/ui/popup/popup.css b/src/ui/popup/popup.css
+new file mode 100644
+index 0000000000000000000000000000000000000000..9758c13eb04e3b91b3f6b2e96314d8f2b6aa1c16
+--- /dev/null
++++ b/src/ui/popup/popup.css
+@@ -0,0 +1,119 @@
++:root {
++  color-scheme: light dark;
++  font-family: "Inter", system-ui, sans-serif;
++  font-size: 14px;
++}
++
++body {
++  margin: 0;
++  min-width: 320px;
++  background: #0f172a;
++  color: #f8fafc;
++}
++
++.popup {
++  padding: 16px;
++  display: flex;
++  flex-direction: column;
++  gap: 12px;
++}
++
++.popup__header {
++  display: flex;
++  align-items: center;
++  justify-content: space-between;
++}
++
++.popup__header h1 {
++  font-size: 16px;
++  margin: 0;
++}
++
++.popup__controls {
++  display: grid;
++  grid-template-columns: repeat(2, 1fr);
++  gap: 8px;
++}
++
++label {
++  display: flex;
++  flex-direction: column;
++  gap: 4px;
++  font-size: 12px;
++}
++
++input,
++select {
++  background: #1e293b;
++  color: inherit;
++  border: 1px solid #334155;
++  border-radius: 6px;
++  padding: 6px 8px;
++}
++
++.primary {
++  background: #38bdf8;
++  border: none;
++  color: #0f172a;
++  border-radius: 8px;
++  padding: 8px 12px;
++  font-weight: 600;
++  cursor: pointer;
++}
++
++.link-button {
++  background: none;
++  border: none;
++  color: #38bdf8;
++  cursor: pointer;
++  font-size: 12px;
++}
++
++.popup__results-header {
++  display: flex;
++  align-items: center;
++  justify-content: space-between;
++}
++
++.password-list {
++  list-style: none;
++  padding: 0;
++  margin: 0;
++  display: flex;
++  flex-direction: column;
++  gap: 6px;
++}
++
++.password-item {
++  display: flex;
++  align-items: center;
++  justify-content: space-between;
++  gap: 8px;
++  background: #1e293b;
++  border-radius: 6px;
++  padding: 8px;
++}
++
++.password-text {
++  font-family: "SF Mono", ui-monospace, monospace;
++  font-size: 13px;
++  word-break: break-all;
++}
++
++.password-item button {
++  background: #334155;
++  border: none;
++  color: inherit;
++  border-radius: 6px;
++  padding: 4px 6px;
++  cursor: pointer;
++}
++
++.toast {
++  background: #22c55e;
++  color: #0f172a;
++  padding: 6px 10px;
++  border-radius: 6px;
++  text-align: center;
++  font-weight: 600;
++}
+diff --git a/src/ui/popup/popup.ts b/src/ui/popup/popup.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..f9fca1b2c9193828c99edd7fd6f4ef21e10ab22b
+--- /dev/null
++++ b/src/ui/popup/popup.ts
+@@ -0,0 +1,179 @@
++import type {ExtensionConfig} from '../../core/config';
++
++const numPasswordsInput = document.querySelector<HTMLInputElement>('#num-passwords');
++const numWordsInput = document.querySelector<HTMLInputElement>('#num-words');
++const separatorInput = document.querySelector<HTMLInputElement>('#separator');
++const presetSelect = document.querySelector<HTMLSelectElement>('#preset');
++const generateButton = document.querySelector<HTMLButtonElement>('#generate');
++const copyAllButton = document.querySelector<HTMLButtonElement>('#copy-all');
++const passwordList = document.querySelector<HTMLUListElement>('#password-list');
++const toast = document.querySelector<HTMLDivElement>('#toast');
++const optionsButton = document.querySelector<HTMLButtonElement>('#open-options');
++
++if (!numPasswordsInput || !numWordsInput || !separatorInput || !presetSelect || !generateButton || !copyAllButton || !passwordList || !toast || !optionsButton) {
++  throw new Error('Popup elements missing');
++}
++
++const runtime = chrome.runtime;
++
++async function sendMessage<T>(type: string, payload?: Record<string, unknown>): Promise<T> {
++  return runtime.sendMessage({type, ...payload});
++}
++
++let currentConfig: ExtensionConfig | null = null;
++
++function showToast(message: string) {
++  toast.textContent = message;
++  toast.hidden = false;
++  window.setTimeout(() => {
++    toast.hidden = true;
++  }, 1500);
++}
++
++function renderPasswords(passwords: string[]) {
++  passwordList.innerHTML = '';
++  passwords.forEach(password => {
++    const item = document.createElement('li');
++    item.className = 'password-item';
++
++    const text = document.createElement('span');
++    text.className = 'password-text';
++    text.textContent = password;
++
++    const copyButton = document.createElement('button');
++    copyButton.type = 'button';
++    copyButton.textContent = 'Copy';
++    copyButton.addEventListener('click', async () => {
++      await navigator.clipboard.writeText(password);
++      showToast('Copied');
++    });
++
++    item.append(text, copyButton);
++    passwordList.appendChild(item);
++  });
++}
++
++function updateInputsFromConfig(config: ExtensionConfig, activeConfig: any) {
++  numPasswordsInput.value = String(config.numPasswords);
++  numWordsInput.value = String(activeConfig.num_words ?? config.customConfig.num_words);
++  if (activeConfig.separator_type === 'FIXED') {
++    separatorInput.value = activeConfig.separator_character ?? '';
++  } else {
++    separatorInput.value = '';
++  }
++  presetSelect.value = config.activePresetId;
++}
++
++async function loadPresets() {
++  const response = await sendMessage<{builtIn: Array<{id: string; name: string}>; custom: Array<{id: string; name: string}>; activePresetId: string}>('GET_PRESETS');
++  presetSelect.innerHTML = '';
++
++  const builtinGroup = document.createElement('optgroup');
++  builtinGroup.label = 'Built-in';
++  response.builtIn.forEach(preset => {
++    const option = document.createElement('option');
++    option.value = preset.id;
++    option.textContent = preset.name;
++    builtinGroup.appendChild(option);
++  });
++  presetSelect.appendChild(builtinGroup);
++
++  const customGroup = document.createElement('optgroup');
++  customGroup.label = 'Custom';
++  response.custom.forEach(preset => {
++    const option = document.createElement('option');
++    option.value = preset.id;
++    option.textContent = preset.name;
++    customGroup.appendChild(option);
++  });
++  const customOption = document.createElement('option');
++  customOption.value = 'CUSTOM';
++  customOption.textContent = 'Custom (unsaved)';
++  customGroup.appendChild(customOption);
++  presetSelect.appendChild(customGroup);
++
++  presetSelect.value = response.activePresetId;
++}
++
++async function refreshConfig() {
++  const response = await sendMessage<{config: ExtensionConfig; activeConfig: any}>('GET_CONFIG');
++  currentConfig = response.config;
++  updateInputsFromConfig(response.config, response.activeConfig);
++}
++
++async function saveQuickSettings() {
++  if (!currentConfig) {
++    return;
++  }
++  const updated: ExtensionConfig = {
++    ...currentConfig,
++    numPasswords: Number(numPasswordsInput.value) || 1,
++  };
++
++  const updatedCustom = {
++    ...updated.customConfig,
++    num_words: Number(numWordsInput.value) || updated.customConfig.num_words,
++  };
++
++  if (separatorInput.value.trim().length > 0) {
++    updatedCustom.separator_type = 'FIXED';
++    updatedCustom.separator_character = separatorInput.value.trim().slice(0, 1);
++  } else {
++    updatedCustom.separator_type = 'RANDOM';
++    updatedCustom.separator_character = '';
++  }
++
++  updated.customConfig = updatedCustom;
++  if (updated.activePresetId !== 'CUSTOM') {
++    updated.activePresetId = 'CUSTOM';
++  }
++
++  const result = await sendMessage<{config: ExtensionConfig}>('SET_CONFIG', {config: updated});
++  currentConfig = result.config;
++}
++
++async function generate() {
++  const response = await sendMessage<{passwords: string[]}>('GENERATE');
++  renderPasswords(response.passwords);
++}
++
++numPasswordsInput.addEventListener('change', async () => {
++  await saveQuickSettings();
++});
++
++numWordsInput.addEventListener('change', async () => {
++  await saveQuickSettings();
++});
++
++separatorInput.addEventListener('change', async () => {
++  await saveQuickSettings();
++});
++
++presetSelect.addEventListener('change', async () => {
++  if (!currentConfig) {
++    return;
++  }
++  const updated: ExtensionConfig = {
++    ...currentConfig,
++    activePresetId: presetSelect.value,
++  };
++  const result = await sendMessage<{config: ExtensionConfig}>('SET_CONFIG', {config: updated});
++  currentConfig = result.config;
++  await refreshConfig();
++});
++
++generateButton.addEventListener('click', generate);
++
++copyAllButton.addEventListener('click', async () => {
++  const passwords = Array.from(passwordList.querySelectorAll('.password-text')).map(node => node.textContent ?? '');
++  await navigator.clipboard.writeText(passwords.join('\n'));
++  showToast('Copied all');
++});
++
++optionsButton.addEventListener('click', () => {
++  runtime.openOptionsPage();
++});
++
++await loadPresets();
++await refreshConfig();
++await generate();
+diff --git a/tsconfig.json b/tsconfig.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..c214f4aa72d382ad9d5af442c34b8a20ad41ec4a
+--- /dev/null
++++ b/tsconfig.json
+@@ -0,0 +1,16 @@
++{
++  "compilerOptions": {
++    "target": "ES2022",
++    "module": "ESNext",
++    "moduleResolution": "Bundler",
++    "lib": ["ES2022", "DOM"],
++    "strict": true,
++    "skipLibCheck": true,
++    "allowJs": true,
++    "resolveJsonModule": true,
++    "isolatedModules": true,
++    "noEmit": true
++  },
++  "include": ["src", "scripts"],
++  "exclude": ["dist", "node_modules", "vendor"]
++}
+diff --git a/vendor/xkpasswd-js b/vendor/xkpasswd-js
+new file mode 160000
+index 0000000000000000000000000000000000000000..84ad09ab9cc30fb4b923b19a2d1e164daa8ca287
+--- /dev/null
++++ b/vendor/xkpasswd-js
+@@ -0,0 +1 @@
++Subproject commit 84ad09ab9cc30fb4b923b19a2d1e164daa8ca287
+diff --git a/vite.config.ts b/vite.config.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..00200b8060ae89777f2dece3fc8d9b388d52809f
+--- /dev/null
++++ b/vite.config.ts
+@@ -0,0 +1,62 @@
++import {defineConfig} from 'vite';
++import path from 'node:path';
++import fs from 'node:fs';
++
++function manifestPlugin(target: 'chromium' | 'firefox') {
++  return {
++    name: 'copy-manifest',
++    closeBundle() {
++      const source = path.resolve(__dirname, 'src/manifest', `manifest.${target}.json`);
++      const outDir = path.resolve(__dirname, 'dist', target);
++      fs.mkdirSync(outDir, {recursive: true});
++      fs.copyFileSync(source, path.join(outDir, 'manifest.json'));
++    },
++  };
++}
++
++export default defineConfig(({mode}) => {
++  const target = mode === 'firefox' ? 'firefox' : 'chromium';
++  const root = path.resolve(__dirname, 'src');
++
++  return {
++    root,
++    publicDir: path.resolve(__dirname, 'public'),
++    resolve: {
++      alias: {
++        '@': root,
++      },
++    },
++    build: {
++      outDir: path.resolve(__dirname, 'dist', target),
++      emptyOutDir: true,
++      sourcemap: false,
++      rollupOptions: {
++        input: {
++          popup: path.resolve(root, 'ui/popup/index.html'),
++          options: path.resolve(root, 'ui/options/index.html'),
++          background: path.resolve(root, 'background/sw.ts'),
++          content: path.resolve(root, 'content/insert.ts'),
++        },
++        output: {
++          entryFileNames(chunk) {
++            if (chunk.name === 'background') {
++              return 'background/sw.js';
++            }
++            if (chunk.name === 'content') {
++              return 'content/insert.js';
++            }
++            return 'assets/[name]-[hash].js';
++          },
++          chunkFileNames: 'assets/[name]-[hash].js',
++          assetFileNames: 'assets/[name]-[hash][extname]',
++        },
++      },
++    },
++    server: {
++      fs: {
++        allow: [root, path.resolve(__dirname, 'vendor')],
++      },
++    },
++    plugins: [manifestPlugin(target)],
++  };
++});

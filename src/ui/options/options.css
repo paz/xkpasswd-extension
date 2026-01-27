@@ -1,0 +1,92 @@
+:root {
+  font-family: "Inter", system-ui, sans-serif;
+  color-scheme: light dark;
+  font-size: 14px;
+}
+
+body {
+  margin: 0;
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+.options {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+header h1 {
+  margin: 0 0 8px 0;
+}
+
+.card {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  align-items: end;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+input,
+select,
+textarea {
+  background: #0f172a;
+  color: inherit;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+textarea {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+button {
+  background: #38bdf8;
+  color: #0f172a;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #334155;
+  color: inherit;
+}
+
+.validation {
+  color: #facc15;
+  min-height: 18px;
+}

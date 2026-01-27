@@ -1,0 +1,22 @@
+{
+  "name": "xkpasswd-extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run build:chromium && npm run build:firefox",
+    "build:chromium": "vite build --mode chromium",
+    "build:firefox": "vite build --mode firefox",
+    "test:smoke": "node scripts/smoke-test.mjs"
+  },
+  "dependencies": {
+    "crypto-random-string": "^5.0.0",
+    "is-it-check": "^1.0.12",
+    "loglevel": "^1.8.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vite": "^5.4.8"
+  }
+}
