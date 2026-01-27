@@ -31,6 +31,7 @@ const paddingAlphabetInput = document.querySelector<HTMLInputElement>('#padding-
 const allowAccentsInput = document.querySelector<HTMLInputElement>('#allow-accents');
 const enableInsertionInput = document.querySelector<HTMLInputElement>('#enable-insertion');
 const dictionarySelect = document.querySelector<HTMLSelectElement>('#dictionary');
+const dictionaryNote = document.querySelector<HTMLParagraphElement>('#dictionary-note');
 
 const saveConfigButton = document.querySelector<HTMLButtonElement>('#save-config');
 const resetConfigButton = document.querySelector<HTMLButtonElement>('#reset-config');
@@ -48,8 +49,8 @@ if (!presetSelect || !applyPresetButton || !presetNameInput || !presetDescriptio
   !paddingCharTypeSelect || !paddingCharInput || !digitsBeforeInput || !digitsAfterInput ||
   !paddingBeforeInput || !paddingAfterInput || !symbolAlphabetInput || !separatorAlphabetInput ||
   !paddingAlphabetInput || !allowAccentsInput || !enableInsertionInput || !dictionarySelect ||
-  !saveConfigButton || !resetConfigButton || !validationText || !configJsonArea || !exportButton ||
-  !importButton || !importStatus) {
+  !dictionaryNote || !saveConfigButton || !resetConfigButton || !validationText ||
+  !configJsonArea || !exportButton || !importButton || !importStatus) {
   throw new Error('Options elements missing');
 }
 
@@ -187,6 +188,13 @@ async function loadDictionaries() {
   } else {
     populateDictionarySelect(response.dictionaries, response.dictionaries[0]?.id ?? 'EN');
   }
+  if (response.dictionaries.length <= 1) {
+    dictionarySelect.disabled = true;
+    dictionaryNote.textContent = 'Only the built-in English dictionary is available right now.';
+  } else {
+    dictionarySelect.disabled = false;
+    dictionaryNote.textContent = '';
+  }
 }
 
 applyPresetButton.addEventListener('click', async () => {
@@ -298,6 +306,10 @@ importButton.addEventListener('click', async () => {
   }
 });
 
-await loadPresets();
-await loadConfig();
-await loadDictionaries();
+async function initializeOptions() {
+  await loadPresets();
+  await loadConfig();
+  await loadDictionaries();
+}
+
+void initializeOptions();
