@@ -8,7 +8,13 @@
     "build": "npm run build:chromium && npm run build:firefox",
     "build:chromium": "vite build --mode chromium",
     "build:firefox": "vite build --mode firefox",
-    "test:smoke": "node scripts/smoke-test.mjs"
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:smoke": "node scripts/smoke-test.mjs",
+    "lint": "eslint . --ext .ts,.js",
+    "lint:fix": "eslint . --ext .ts,.js --fix",
+    "format": "prettier --write \"src/**/*.{ts,js,css,html}\"",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "crypto-random-string": "^5.0.0",
@@ -16,7 +22,15 @@
     "loglevel": "^1.8.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "@types/chrome": "^0.0.277",
+    "@vitest/ui": "^2.1.8",
+    "eslint": "^9.16.0",
+    "globals": "^15.13.0",
+    "prettier": "^3.4.2",
     "typescript": "^5.6.3",
-    "vite": "^5.4.8"
+    "typescript-eslint": "^8.18.2",
+    "vite": "^5.4.8",
+    "vitest": "^2.1.8"
   }
 }

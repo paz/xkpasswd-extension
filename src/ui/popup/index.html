@@ -8,175 +8,228 @@
   </head>
   <body>
     <main class="popup">
-      <header class="popup__header">
-        <div>
-          <p class="eyebrow">XKPasswd Extension</p>
-          <h1>Secure, memorable passwords</h1>
-          <p class="subhead">Fast, accessible controls that match your browser’s look and feel.</p>
+      <!-- Header -->
+      <header class="header">
+        <div class="header__content">
+          <h1 class="header__title">XKPasswd</h1>
+          <p class="header__subtitle">Generate secure, memorable passwords</p>
         </div>
-        <div class="header-actions">
-          <button id="open-options" class="ghost" type="button">Options</button>
-        </div>
+        <button id="open-options" class="btn-icon" type="button" aria-label="Open settings" title="Settings">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="10" cy="10" r="3" />
+            <path d="M10 2v2m0 12v2M2 10h2m12 0h2m-2.1-5.9l-1.4 1.4m-9.8 9.8l-1.4 1.4m12.6 0l-1.4-1.4M4.6 5.4L3.2 4" />
+          </svg>
+        </button>
       </header>
 
-      <section class="card" aria-labelledby="generate-title">
-        <div class="card-header">
-          <div>
-            <h2 id="generate-title">Generate</h2>
-            <p class="helper">Pick a preset and adjust the essentials before generating.</p>
-          </div>
-          <button id="generate" class="primary" type="button">Generate</button>
+      <!-- Quick Generate Section -->
+      <section class="quick-generate">
+        <div class="preset-selector">
+          <label for="preset" class="preset-label">
+            <span class="label-text">Preset</span>
+            <select id="preset" class="select-input"></select>
+          </label>
+          <p id="preset-description" class="preset-description"></p>
         </div>
-        <form id="quick-form" class="grid">
-          <label>
-            Preset
-            <select id="preset"></select>
-          </label>
-          <label>
-            # Passwords
-            <input id="num-passwords" type="number" min="1" max="20" />
-          </label>
-          <label>
-            Words per password
-            <input id="num-words" type="number" min="2" max="10" />
-          </label>
-          <label>
-            Case transform
-            <select id="case-transform">
-              <option value="NONE">None</option>
-              <option value="CAPITALISE">Capitalise</option>
-              <option value="INVERT">Invert</option>
-              <option value="RANDOM">Random</option>
-              <option value="ALTERNATE">Alternate</option>
-            </select>
-          </label>
-          <label>
-            Separator type
-            <select id="separator-type" data-key="separator-type">
-              <option value="RANDOM">Random</option>
-              <option value="FIXED">Fixed</option>
-              <option value="NONE">None</option>
-            </select>
-          </label>
-          <label class="field" data-show-when="separator-type:FIXED">
-            Separator character
-            <input id="separator-character" type="text" maxlength="1" />
-          </label>
-          <label class="field" data-show-when="separator-type:RANDOM">
-            Separator alphabet (optional)
-            <input id="separator-alphabet" type="text" />
-          </label>
-        </form>
-        <div class="preset-meta">
-          <p id="preset-description" class="helper"></p>
-          <button id="manage-presets" class="link-button" type="button">Manage presets</button>
+
+        <button id="generate" class="btn-primary" type="button">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13.5 2.5v5h-5M2.5 13.5v-5h5M13 3a6.5 6.5 0 11-10 5.5" />
+          </svg>
+          <span>Generate Passwords</span>
+        </button>
+      </section>
+
+      <!-- Password Results -->
+      <section class="results" aria-labelledby="results-title">
+        <div class="results__header">
+          <h2 id="results-title" class="results__title">Generated Passwords</h2>
+          <button id="copy-all" class="btn-secondary btn-sm" type="button" hidden>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="5" y="5" width="9" height="9" rx="1" />
+              <path d="M2 11V3a1 1 0 011-1h8" />
+            </svg>
+            <span>Copy All</span>
+          </button>
+        </div>
+
+        <div id="empty-state" class="empty-state">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M24 12v24M12 24h24" />
+          </svg>
+          <p>Click "Generate Passwords" to begin</p>
+        </div>
+
+        <ul id="password-list" class="password-list" hidden></ul>
+
+        <!-- Strength Indicator -->
+        <div id="strength-indicator" class="strength-indicator" hidden>
+          <div class="strength-indicator__header">
+            <span class="strength-indicator__label">Password Strength</span>
+            <span id="strength-label" class="strength-indicator__value"></span>
+          </div>
+          <div class="strength-indicator__bar">
+            <div id="strength-bar-fill" class="strength-indicator__fill"></div>
+          </div>
+          <div class="strength-indicator__details">
+            <span id="entropy-display" class="strength-detail"></span>
+            <span id="crack-time" class="strength-detail"></span>
+          </div>
         </div>
       </section>
 
-      <section class="card" aria-labelledby="advanced-title">
-        <div class="card-header">
-          <div>
-            <h2 id="advanced-title">Advanced settings</h2>
-            <p class="helper">Fine tune word rules, padding, and output behaviors.</p>
+      <!-- Advanced Settings (Collapsible) -->
+      <section class="settings">
+        <button id="toggle-settings" class="settings__toggle" type="button" aria-expanded="false">
+          <span class="settings__toggle-text">Advanced Settings</span>
+          <svg class="settings__toggle-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 6l4 4 4-4" />
+          </svg>
+        </button>
+
+        <div id="settings-panel" class="settings__panel" hidden>
+          <!-- Generation Options -->
+          <div class="settings__group">
+            <h3 class="settings__group-title">Generation</h3>
+            <div class="form-grid">
+              <label class="form-field">
+                <span class="form-label">Passwords to generate</span>
+                <input id="num-passwords" class="form-input" type="number" min="1" max="20" />
+              </label>
+              <label class="form-field">
+                <span class="form-label">Words per password</span>
+                <input id="num-words" class="form-input" type="number" min="2" max="10" />
+              </label>
+            </div>
           </div>
-          <p id="validation" class="validation" role="status"></p>
+
+          <!-- Word Options -->
+          <div class="settings__group">
+            <h3 class="settings__group-title">Words</h3>
+            <div class="form-grid">
+              <label class="form-field">
+                <span class="form-label">Min word length</span>
+                <input id="word-min" class="form-input" type="number" min="3" max="20" />
+              </label>
+              <label class="form-field">
+                <span class="form-label">Max word length</span>
+                <input id="word-max" class="form-input" type="number" min="3" max="20" />
+              </label>
+              <label class="form-field">
+                <span class="form-label">Case transform</span>
+                <select id="case-transform" class="form-input">
+                  <option value="NONE">None</option>
+                  <option value="CAPITALISE">Capitalize</option>
+                  <option value="INVERT">Invert</option>
+                  <option value="RANDOM">Random</option>
+                  <option value="ALTERNATE">Alternate</option>
+                </select>
+              </label>
+              <label class="form-field form-field--checkbox">
+                <input id="allow-accents" class="form-checkbox" type="checkbox" />
+                <span class="form-label">Allow accents</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Separators -->
+          <div class="settings__group">
+            <h3 class="settings__group-title">Separators</h3>
+            <div class="form-grid">
+              <label class="form-field">
+                <span class="form-label">Separator type</span>
+                <select id="separator-type" class="form-input" data-key="separator-type">
+                  <option value="RANDOM">Random</option>
+                  <option value="FIXED">Fixed</option>
+                  <option value="NONE">None</option>
+                </select>
+              </label>
+              <label class="form-field" data-show-when="separator-type:FIXED">
+                <span class="form-label">Separator character</span>
+                <input id="separator-character" class="form-input" type="text" maxlength="1" placeholder="-" />
+              </label>
+              <label class="form-field" data-show-when="separator-type:RANDOM">
+                <span class="form-label">Separator alphabet</span>
+                <input id="separator-alphabet" class="form-input" type="text" placeholder="!@#$%^&*" />
+              </label>
+            </div>
+          </div>
+
+          <!-- Padding -->
+          <div class="settings__group">
+            <h3 class="settings__group-title">Padding</h3>
+            <div class="form-grid">
+              <label class="form-field">
+                <span class="form-label">Padding type</span>
+                <select id="padding-type" class="form-input" data-key="padding-type">
+                  <option value="FIXED">Fixed</option>
+                  <option value="ADAPTIVE">Adaptive</option>
+                  <option value="NONE">None</option>
+                </select>
+              </label>
+              <label class="form-field" data-show-when="padding-type:ADAPTIVE">
+                <span class="form-label">Pad to length</span>
+                <input id="pad-length" class="form-input" type="number" min="1" max="128" />
+              </label>
+              <label class="form-field">
+                <span class="form-label">Digits before</span>
+                <input id="digits-before" class="form-input" type="number" min="0" max="10" />
+              </label>
+              <label class="form-field">
+                <span class="form-label">Digits after</span>
+                <input id="digits-after" class="form-input" type="number" min="0" max="10" />
+              </label>
+              <label class="form-field">
+                <span class="form-label">Symbols before</span>
+                <input id="padding-before" class="form-input" type="number" min="0" max="10" />
+              </label>
+              <label class="form-field">
+                <span class="form-label">Symbols after</span>
+                <input id="padding-after" class="form-input" type="number" min="0" max="10" />
+              </label>
+              <label class="form-field">
+                <span class="form-label">Symbol type</span>
+                <select id="padding-char-type" class="form-input" data-key="padding-char-type">
+                  <option value="RANDOM">Random</option>
+                  <option value="FIXED">Fixed</option>
+                </select>
+              </label>
+              <label class="form-field" data-show-when="padding-char-type:FIXED">
+                <span class="form-label">Symbol character</span>
+                <input id="padding-char" class="form-input" type="text" maxlength="1" placeholder="!" />
+              </label>
+              <label class="form-field" data-show-when="padding-char-type:RANDOM">
+                <span class="form-label">Symbol alphabet</span>
+                <input id="padding-alphabet" class="form-input" type="text" placeholder="!@#$%^&*" />
+              </label>
+              <label class="form-field form-grid--full">
+                <span class="form-label">Symbol alphabet</span>
+                <input id="symbol-alphabet" class="form-input" type="text" placeholder="!@#$%^&*()-_=+[]{}|;:,.<>?" />
+              </label>
+            </div>
+          </div>
+
+          <!-- Other Options -->
+          <div class="settings__group">
+            <h3 class="settings__group-title">Other</h3>
+            <div class="form-grid">
+              <label class="form-field">
+                <span class="form-label">Dictionary</span>
+                <select id="dictionary" class="form-input"></select>
+              </label>
+              <label class="form-field form-field--checkbox">
+                <input id="enable-insertion" class="form-checkbox" type="checkbox" />
+                <span class="form-label">Enable right-click insertion</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Validation Message -->
+          <div id="validation" class="validation-message" role="alert" hidden></div>
         </div>
-        <details class="details" open>
-          <summary>Words &amp; dictionary</summary>
-          <div class="details__body grid">
-            <label>
-              Word length min
-              <input id="word-min" type="number" min="3" max="20" />
-            </label>
-            <label>
-              Word length max
-              <input id="word-max" type="number" min="3" max="20" />
-            </label>
-            <label class="checkbox">
-              <span>Allow accents</span>
-              <input id="allow-accents" type="checkbox" data-key="allow-accents" />
-            </label>
-            <label>
-              Dictionary
-              <select id="dictionary"></select>
-            </label>
-          </div>
-        </details>
-        <details class="details">
-          <summary>Padding &amp; symbols</summary>
-          <div class="details__body grid">
-            <label>
-              Padding type
-              <select id="padding-type" data-key="padding-type">
-                <option value="FIXED">Fixed</option>
-                <option value="ADAPTIVE">Adaptive</option>
-                <option value="NONE">None</option>
-              </select>
-            </label>
-            <label class="field" data-show-when="padding-type:ADAPTIVE">
-              Pad to length
-              <input id="pad-length" type="number" min="1" max="128" />
-            </label>
-            <label>
-              Digits before
-              <input id="digits-before" type="number" min="0" max="10" />
-            </label>
-            <label>
-              Digits after
-              <input id="digits-after" type="number" min="0" max="10" />
-            </label>
-            <label>
-              Symbols before
-              <input id="padding-before" type="number" min="0" max="10" />
-            </label>
-            <label>
-              Symbols after
-              <input id="padding-after" type="number" min="0" max="10" />
-            </label>
-            <label>
-              Padding character type
-              <select id="padding-char-type" data-key="padding-char-type">
-                <option value="RANDOM">Random</option>
-                <option value="FIXED">Fixed</option>
-              </select>
-            </label>
-            <label class="field" data-show-when="padding-char-type:FIXED">
-              Padding character
-              <input id="padding-char" type="text" maxlength="1" />
-            </label>
-            <label class="field" data-show-when="padding-char-type:RANDOM">
-              Padding alphabet (optional)
-              <input id="padding-alphabet" type="text" />
-            </label>
-            <label>
-              Symbol alphabet
-              <input id="symbol-alphabet" type="text" />
-            </label>
-          </div>
-        </details>
-        <details class="details">
-          <summary>Output &amp; insertion</summary>
-          <div class="details__body grid">
-            <label class="checkbox">
-              <span>Enable right-click insertion</span>
-              <input id="enable-insertion" type="checkbox" data-key="enable-insertion" />
-            </label>
-          </div>
-        </details>
       </section>
 
-      <section class="card" aria-labelledby="results-title">
-        <div class="popup__results-header">
-          <div>
-            <h2 id="results-title">Passwords</h2>
-            <p class="helper">Copy one or grab them all at once.</p>
-          </div>
-          <button id="copy-all" class="ghost" type="button">Copy all</button>
-        </div>
-        <p id="empty-state" class="helper">Generate passwords to see results here.</p>
-        <ul id="password-list" class="password-list"></ul>
-      </section>
-
+      <!-- Toast Notification -->
       <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
     </main>
 
