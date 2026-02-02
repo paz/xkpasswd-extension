@@ -65,11 +65,11 @@ function updateConditionalFields() {
   });
 }
 
-// ===== General Tab =====
+// ===== Settings Tab =====
 let currentConfig: ExtensionConfig | null = null;
 let activeConfig: XkpasswdConfig | null = null;
 
-async function loadGeneralSettings() {
+async function loadSettings() {
   try {
     const response = await sendMessage<{
       config: ExtensionConfig;
@@ -79,7 +79,7 @@ async function loadGeneralSettings() {
     currentConfig = response.config;
     activeConfig = response.activeConfig;
 
-    // Populate form fields
+    // Populate form fields - Basic settings
     const presetSelect = document.getElementById('preset-select') as HTMLSelectElement;
     const presetDesc = document.getElementById('preset-desc') as HTMLParagraphElement;
     const numPasswords = document.getElementById('num-passwords') as HTMLInputElement;
@@ -91,6 +91,19 @@ async function loadGeneralSettings() {
     const separatorType = document.getElementById('separator-type') as HTMLSelectElement;
     const separatorChar = document.getElementById('separator-char') as HTMLInputElement;
     const separatorAlphabet = document.getElementById('separator-alphabet') as HTMLInputElement;
+
+    // Advanced settings (now in Settings tab)
+    const paddingType = document.getElementById('padding-type') as HTMLSelectElement;
+    const padLength = document.getElementById('pad-length') as HTMLInputElement;
+    const digitsBefore = document.getElementById('digits-before') as HTMLInputElement;
+    const digitsAfter = document.getElementById('digits-after') as HTMLInputElement;
+    const paddingBefore = document.getElementById('padding-before') as HTMLInputElement;
+    const paddingAfter = document.getElementById('padding-after') as HTMLInputElement;
+    const paddingCharType = document.getElementById('padding-char-type') as HTMLSelectElement;
+    const paddingChar = document.getElementById('padding-char') as HTMLInputElement;
+    const paddingAlphabet = document.getElementById('padding-alphabet') as HTMLInputElement;
+    const symbolAlphabet = document.getElementById('symbol-alphabet') as HTMLInputElement;
+    const dictionary = document.getElementById('dictionary') as HTMLSelectElement;
     const enableInsertion = document.getElementById('enable-insertion') as HTMLInputElement;
 
     // Load presets
@@ -128,6 +141,7 @@ async function loadGeneralSettings() {
     const selectedOption = presetSelect.options[presetSelect.selectedIndex];
     presetDesc.textContent = selectedOption?.dataset.description || '';
 
+    // Set basic settings values
     numPasswords.value = String(response.config.numPasswords);
     numWords.value = String(response.activeConfig.num_words);
     wordMin.value = String(response.activeConfig.word_length_min);
@@ -137,6 +151,30 @@ async function loadGeneralSettings() {
     separatorType.value = response.activeConfig.separator_type;
     separatorChar.value = response.activeConfig.separator_character || '';
     separatorAlphabet.value = response.activeConfig.separator_alphabet || '';
+
+    // Set advanced settings values
+    paddingType.value = response.activeConfig.padding_type;
+    padLength.value = response.activeConfig.pad_to_length ? String(response.activeConfig.pad_to_length) : '';
+    digitsBefore.value = String(response.activeConfig.padding_digits_before);
+    digitsAfter.value = String(response.activeConfig.padding_digits_after);
+    paddingBefore.value = String(response.activeConfig.padding_characters_before);
+    paddingAfter.value = String(response.activeConfig.padding_characters_after);
+    paddingCharType.value = response.activeConfig.padding_character_type;
+    paddingChar.value = response.activeConfig.padding_character || '';
+    paddingAlphabet.value = response.activeConfig.padding_alphabet || '';
+    symbolAlphabet.value = response.activeConfig.symbol_alphabet || '';
+
+    // Load dictionaries
+    const dictResponse = await sendMessage<{dictionaries: Array<{id: string; name: string}>}>('GET_DICTIONARIES');
+    dictionary.innerHTML = '';
+    dictResponse.dictionaries.forEach((dict) => {
+      const option = document.createElement('option');
+      option.value = dict.id;
+      option.textContent = dict.name;
+      dictionary.appendChild(option);
+    });
+    dictionary.value = response.config.dictionaryId;
+
     enableInsertion.checked = response.config.enableInsertion;
 
     updateConditionalFields();
@@ -146,7 +184,7 @@ async function loadGeneralSettings() {
   }
 }
 
-async function saveGeneralSettings() {
+async function saveSettings() {
   if (!currentConfig || !activeConfig) return;
 
   try {
@@ -160,6 +198,17 @@ async function saveGeneralSettings() {
     const separatorType = document.getElementById('separator-type') as HTMLSelectElement;
     const separatorChar = document.getElementById('separator-char') as HTMLInputElement;
     const separatorAlphabet = document.getElementById('separator-alphabet') as HTMLInputElement;
+    const paddingType = document.getElementById('padding-type') as HTMLSelectElement;
+    const padLength = document.getElementById('pad-length') as HTMLInputElement;
+    const digitsBefore = document.getElementById('digits-before') as HTMLInputElement;
+    const digitsAfter = document.getElementById('digits-after') as HTMLInputElement;
+    const paddingBefore = document.getElementById('padding-before') as HTMLInputElement;
+    const paddingAfter = document.getElementById('padding-after') as HTMLInputElement;
+    const paddingCharType = document.getElementById('padding-char-type') as HTMLSelectElement;
+    const paddingChar = document.getElementById('padding-char') as HTMLInputElement;
+    const paddingAlphabet = document.getElementById('padding-alphabet') as HTMLInputElement;
+    const symbolAlphabet = document.getElementById('symbol-alphabet') as HTMLInputElement;
+    const dictionary = document.getElementById('dictionary') as HTMLSelectElement;
     const enableInsertion = document.getElementById('enable-insertion') as HTMLInputElement;
 
     const updated: ExtensionConfig = {
@@ -167,6 +216,7 @@ async function saveGeneralSettings() {
       numPasswords: parseInt(numPasswords.value) || 3,
       enableInsertion: enableInsertion.checked,
       activePresetId: presetSelect.value,
+      dictionaryId: dictionary.value,
       customConfig: {
         ...currentConfig.customConfig,
         num_words: parseInt(numWords.value) || 3,
@@ -177,6 +227,16 @@ async function saveGeneralSettings() {
         separator_type: separatorType.value as XkpasswdConfig['separator_type'],
         separator_character: separatorType.value === 'FIXED' ? separatorChar.value.trim().slice(0, 1) : '',
         separator_alphabet: separatorType.value === 'RANDOM' ? separatorAlphabet.value.trim() : '',
+        padding_type: paddingType.value as XkpasswdConfig['padding_type'],
+        pad_to_length: paddingType.value === 'ADAPTIVE' && padLength.value ? parseInt(padLength.value) : 0,
+        padding_digits_before: parseInt(digitsBefore.value) || 0,
+        padding_digits_after: parseInt(digitsAfter.value) || 0,
+        padding_characters_before: parseInt(paddingBefore.value) || 0,
+        padding_characters_after: parseInt(paddingAfter.value) || 0,
+        padding_character_type: paddingCharType.value as XkpasswdConfig['padding_character_type'],
+        padding_character: paddingCharType.value === 'FIXED' ? paddingChar.value.trim().slice(0, 1) : '',
+        padding_alphabet: paddingCharType.value === 'RANDOM' ? paddingAlphabet.value.trim() : '',
+        symbol_alphabet: symbolAlphabet.value.trim(),
       },
     };
 
@@ -195,12 +255,55 @@ async function resetSettings() {
   try {
     const response = await sendMessage<{config: ExtensionConfig}>('RESET_CONFIG');
     currentConfig = response.config;
-    await loadGeneralSettings();
+    await loadSettings();
     showStatus('settings-status', 'Settings reset to defaults', true);
   } catch (error) {
     console.error('Error resetting settings:', error);
     showStatus('settings-status', 'Failed to reset settings', false);
   }
+}
+
+// Helper function to read current form values into a config object
+function getCurrentFormConfig(): Partial<XkpasswdConfig> {
+  const numWords = document.getElementById('num-words') as HTMLInputElement;
+  const wordMin = document.getElementById('word-min') as HTMLInputElement;
+  const wordMax = document.getElementById('word-max') as HTMLInputElement;
+  const caseTransform = document.getElementById('case-transform') as HTMLSelectElement;
+  const allowAccents = document.getElementById('allow-accents') as HTMLInputElement;
+  const separatorType = document.getElementById('separator-type') as HTMLSelectElement;
+  const separatorChar = document.getElementById('separator-char') as HTMLInputElement;
+  const separatorAlphabet = document.getElementById('separator-alphabet') as HTMLInputElement;
+  const paddingType = document.getElementById('padding-type') as HTMLSelectElement;
+  const padLength = document.getElementById('pad-length') as HTMLInputElement;
+  const digitsBefore = document.getElementById('digits-before') as HTMLInputElement;
+  const digitsAfter = document.getElementById('digits-after') as HTMLInputElement;
+  const paddingBefore = document.getElementById('padding-before') as HTMLInputElement;
+  const paddingAfter = document.getElementById('padding-after') as HTMLInputElement;
+  const paddingCharType = document.getElementById('padding-char-type') as HTMLSelectElement;
+  const paddingChar = document.getElementById('padding-char') as HTMLInputElement;
+  const paddingAlphabet = document.getElementById('padding-alphabet') as HTMLInputElement;
+  const symbolAlphabet = document.getElementById('symbol-alphabet') as HTMLInputElement;
+
+  return {
+    num_words: parseInt(numWords.value) || 3,
+    word_length_min: parseInt(wordMin.value) || 4,
+    word_length_max: parseInt(wordMax.value) || 8,
+    case_transform: caseTransform.value as XkpasswdConfig['case_transform'],
+    allow_accents: allowAccents.checked ? 1 : 0,
+    separator_type: separatorType.value as XkpasswdConfig['separator_type'],
+    separator_character: separatorType.value === 'FIXED' ? separatorChar.value.trim().slice(0, 1) : '',
+    separator_alphabet: separatorType.value === 'RANDOM' ? separatorAlphabet.value.trim() : '',
+    padding_type: paddingType.value as XkpasswdConfig['padding_type'],
+    pad_to_length: paddingType.value === 'ADAPTIVE' && padLength.value ? parseInt(padLength.value) : 0,
+    padding_digits_before: parseInt(digitsBefore.value) || 0,
+    padding_digits_after: parseInt(digitsAfter.value) || 0,
+    padding_characters_before: parseInt(paddingBefore.value) || 0,
+    padding_characters_after: parseInt(paddingAfter.value) || 0,
+    padding_character_type: paddingCharType.value as XkpasswdConfig['padding_character_type'],
+    padding_character: paddingCharType.value === 'FIXED' ? paddingChar.value.trim().slice(0, 1) : '',
+    padding_alphabet: paddingCharType.value === 'RANDOM' ? paddingAlphabet.value.trim() : '',
+    symbol_alphabet: symbolAlphabet.value.trim(),
+  };
 }
 
 // ===== Presets Tab =====
@@ -217,11 +320,14 @@ async function savePreset() {
   }
 
   try {
+    // Get current form values instead of using saved customConfig
+    const formConfig = getCurrentFormConfig();
+
     const newPreset: StoredPreset = {
       id: `custom_${Date.now()}`,
       name,
       description: descInput.value.trim() || 'Custom preset',
-      config: currentConfig.customConfig,
+      config: formConfig as XkpasswdConfig,
     };
 
     const updated: ExtensionConfig = {
@@ -276,6 +382,36 @@ async function loadCustomPresets() {
   });
 }
 
+async function loadBuiltinPresets() {
+  try {
+    const presetsResponse = await sendMessage<{
+      builtIn: Array<{id: string; name: string; description: string}>;
+    }>('GET_PRESETS');
+
+    const listContainer = document.getElementById('builtin-presets-list');
+    if (!listContainer) return;
+
+    listContainer.innerHTML = '';
+
+    presetsResponse.builtIn.forEach((preset) => {
+      const item = document.createElement('div');
+      item.className = 'preset-item';
+      item.innerHTML = `
+        <div class="preset-item__info">
+          <h3 class="preset-item__name">${preset.name}</h3>
+          <p class="preset-item__desc">${preset.description}</p>
+        </div>
+        <div class="preset-item__actions">
+          <span class="preset-badge">Built-in</span>
+        </div>
+      `;
+      listContainer.appendChild(item);
+    });
+  } catch (error) {
+    console.error('Error loading builtin presets:', error);
+  }
+}
+
 async function deletePreset(presetId: string) {
   if (!currentConfig) return;
   if (!confirm('Delete this preset? This cannot be undone.')) return;
@@ -294,49 +430,8 @@ async function deletePreset(presetId: string) {
   }
 }
 
-// ===== Advanced Tab =====
-async function loadAdvancedSettings() {
-  if (!activeConfig || !currentConfig) return;
-
-  const paddingType = document.getElementById('padding-type') as HTMLSelectElement;
-  const padLength = document.getElementById('pad-length') as HTMLInputElement;
-  const digitsBefore = document.getElementById('digits-before') as HTMLInputElement;
-  const digitsAfter = document.getElementById('digits-after') as HTMLInputElement;
-  const paddingBefore = document.getElementById('padding-before') as HTMLInputElement;
-  const paddingAfter = document.getElementById('padding-after') as HTMLInputElement;
-  const paddingCharType = document.getElementById('padding-char-type') as HTMLSelectElement;
-  const paddingChar = document.getElementById('padding-char') as HTMLInputElement;
-  const paddingAlphabet = document.getElementById('padding-alphabet') as HTMLInputElement;
-  const symbolAlphabet = document.getElementById('symbol-alphabet') as HTMLInputElement;
-  const dictionary = document.getElementById('dictionary') as HTMLSelectElement;
-
-  paddingType.value = activeConfig.padding_type;
-  padLength.value = activeConfig.pad_to_length ? String(activeConfig.pad_to_length) : '';
-  digitsBefore.value = String(activeConfig.padding_digits_before);
-  digitsAfter.value = String(activeConfig.padding_digits_after);
-  paddingBefore.value = String(activeConfig.padding_characters_before);
-  paddingAfter.value = String(activeConfig.padding_characters_after);
-  paddingCharType.value = activeConfig.padding_character_type;
-  paddingChar.value = activeConfig.padding_character || '';
-  paddingAlphabet.value = activeConfig.padding_alphabet || '';
-  symbolAlphabet.value = activeConfig.symbol_alphabet || '';
-
-  // Load dictionaries
-  const dictResponse = await sendMessage<{dictionaries: Array<{id: string; name: string}>}>('GET_DICTIONARIES');
-  dictionary.innerHTML = '';
-  dictResponse.dictionaries.forEach((dict) => {
-    const option = document.createElement('option');
-    option.value = dict.id;
-    option.textContent = dict.name;
-    dictionary.appendChild(option);
-  });
-  dictionary.value = currentConfig.dictionaryId;
-
-  updateConditionalFields();
-}
-
 // ===== Event Listeners =====
-document.getElementById('save-settings')?.addEventListener('click', saveGeneralSettings);
+document.getElementById('save-settings')?.addEventListener('click', saveSettings);
 document.getElementById('reset-settings')?.addEventListener('click', resetSettings);
 document.getElementById('save-preset')?.addEventListener('click', savePreset);
 
@@ -355,9 +450,9 @@ document.getElementById('preset-select')?.addEventListener('change', (e) => {
 
 // ===== Initialize =====
 async function initialize() {
-  await loadGeneralSettings();
+  await loadSettings();
   await loadCustomPresets();
-  await loadAdvancedSettings();
+  await loadBuiltinPresets();
 }
 
 void initialize();

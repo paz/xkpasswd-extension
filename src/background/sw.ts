@@ -24,7 +24,22 @@ if (extensionApi?.contextMenus) {
     }
     const passwords = await generatePasswords({...config, numPasswords: 1});
     if (tab?.id) {
-      extensionApi.tabs.sendMessage(tab.id, {type: 'INSERT', text: passwords[0]});
+      try {
+        await extensionApi.tabs.sendMessage(tab.id, {type: 'INSERT', text: passwords[0]});
+      } catch (error) {
+        console.error('Failed to insert password:', error);
+        // Try to inject the content script if it's not loaded
+        try {
+          await extensionApi.scripting.executeScript({
+            target: {tabId: tab.id},
+            files: ['content/insert.js'],
+          });
+          // Retry sending the message
+          await extensionApi.tabs.sendMessage(tab.id, {type: 'INSERT', text: passwords[0]});
+        } catch (injectError) {
+          console.error('Failed to inject content script:', injectError);
+        }
+      }
     }
   });
 }

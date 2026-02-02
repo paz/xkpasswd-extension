@@ -18,31 +18,31 @@
 
       <!-- Tabs -->
       <nav class="tabs" role="tablist">
-        <button id="tab-general" class="tab" role="tab" aria-selected="true" aria-controls="panel-general">
-          General
+        <button id="tab-settings" class="tab" role="tab" aria-selected="true" aria-controls="panel-settings">
+          Settings
         </button>
         <button id="tab-presets" class="tab" role="tab" aria-selected="false" aria-controls="panel-presets">
           Presets
-        </button>
-        <button id="tab-advanced" class="tab" role="tab" aria-selected="false" aria-controls="panel-advanced">
-          Advanced
         </button>
       </nav>
 
       <!-- Tab Panels -->
       <div class="panels">
-        <!-- General Settings Panel -->
-        <section id="panel-general" class="panel" role="tabpanel" aria-labelledby="tab-general">
+        <!-- Settings Panel -->
+        <section id="panel-settings" class="panel" role="tabpanel" aria-labelledby="tab-settings">
           <div class="card">
-            <h2 class="card__title">Quick Settings</h2>
+            <h2 class="card__title">Active Preset</h2>
             <div class="form-group">
               <label class="form-label">
-                <span>Active Preset</span>
+                <span>Current Preset</span>
                 <select id="preset-select" class="form-select"></select>
               </label>
               <p id="preset-desc" class="form-help"></p>
             </div>
+          </div>
 
+          <div class="card">
+            <h2 class="card__title">Generation Options</h2>
             <div class="form-row">
               <label class="form-label">
                 <span>Passwords to Generate</span>
@@ -71,10 +71,10 @@
               <span>Case Transform</span>
               <select id="case-transform" class="form-select">
                 <option value="NONE">None</option>
-                <option value="CAPITALISE">Capitalize</option>
-                <option value="INVERT">Invert</option>
-                <option value="RANDOM">Random</option>
-                <option value="ALTERNATE">Alternate</option>
+                <option value="CAPITALISE">Capitalize First Letter</option>
+                <option value="INVERT">Invert Case</option>
+                <option value="RANDOM">Random Case</option>
+                <option value="ALTERNATE">Alternate Case</option>
               </select>
             </label>
             <label class="form-checkbox">
@@ -88,8 +88,8 @@
             <label class="form-label">
               <span>Separator Type</span>
               <select id="separator-type" class="form-select" data-key="separator-type">
-                <option value="RANDOM">Random</option>
-                <option value="FIXED">Fixed</option>
+                <option value="RANDOM">Random Symbol</option>
+                <option value="FIXED">Fixed Character</option>
                 <option value="NONE">None</option>
               </select>
             </label>
@@ -98,95 +98,25 @@
               <input id="separator-char" class="form-input" type="text" maxlength="1" placeholder="-" />
             </label>
             <label class="form-label" data-show-when="separator-type:RANDOM">
-              <span>Separator Alphabet</span>
+              <span>Separator Symbol Set</span>
               <input id="separator-alphabet" class="form-input" type="text" placeholder="!@#$%^&*" />
             </label>
           </div>
 
           <div class="card">
-            <h2 class="card__title">Other Options</h2>
-            <label class="form-checkbox">
-              <input id="enable-insertion" type="checkbox" />
-              <span>Enable right-click password insertion</span>
-            </label>
-            <p class="form-help">Allow inserting passwords via context menu when right-clicking on input fields</p>
-          </div>
-
-          <div class="card">
-            <div class="button-group">
-              <button id="save-settings" class="btn-primary" type="button">Save Settings</button>
-              <button id="reset-settings" class="btn-secondary" type="button">Reset to Defaults</button>
-            </div>
-            <div id="settings-status" class="status-message" role="status" hidden></div>
-          </div>
-        </section>
-
-        <!-- Presets Panel -->
-        <section id="panel-presets" class="panel" role="tabpanel" aria-labelledby="tab-presets" hidden>
-          <div class="card">
-            <h2 class="card__title">Save Current Settings as Preset</h2>
-            <div class="form-group">
-              <label class="form-label">
-                <span>Preset Name</span>
-                <input id="new-preset-name" class="form-input" type="text" placeholder="My Custom Preset" />
-              </label>
-              <label class="form-label">
-                <span>Description (Optional)</span>
-                <input id="new-preset-desc" class="form-input" type="text" placeholder="Describe this preset..." />
-              </label>
-              <button id="save-preset" class="btn-primary" type="button">Save as Preset</button>
-              <div id="save-preset-status" class="status-message" role="status" hidden></div>
-            </div>
-          </div>
-
-          <div class="card">
-            <h2 class="card__title">Manage Custom Presets</h2>
-            <div id="custom-presets-list" class="presets-list">
-              <p class="empty-message">No custom presets yet. Create one above!</p>
-            </div>
-          </div>
-
-          <div class="card">
-            <h2 class="card__title">Import/Export Preset</h2>
-            <div class="split-layout">
-              <div>
-                <h3 class="subsection-title">Export</h3>
-                <label class="form-label">
-                  <span>Select Preset to Export</span>
-                  <select id="export-preset-select" class="form-select"></select>
-                </label>
-                <button id="export-preset" class="btn-primary" type="button">Export Preset</button>
-              </div>
-              <div>
-                <h3 class="subsection-title">Import</h3>
-                <div class="file-upload">
-                  <input id="import-file" type="file" accept=".json" hidden />
-                  <button id="import-trigger" class="btn-secondary" type="button">Choose File</button>
-                  <span id="import-filename" class="file-name">No file chosen</span>
-                </div>
-                <button id="import-preset" class="btn-primary" type="button">Import Preset</button>
-                <div id="import-status" class="status-message" role="status" hidden></div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Advanced Panel -->
-        <section id="panel-advanced" class="panel" role="tabpanel" aria-labelledby="tab-advanced" hidden>
-          <div class="card">
-            <h2 class="card__title">Padding Options</h2>
+            <h2 class="card__title">Padding & Symbols</h2>
             <label class="form-label">
               <span>Padding Type</span>
               <select id="padding-type" class="form-select" data-key="padding-type">
-                <option value="FIXED">Fixed</option>
-                <option value="ADAPTIVE">Adaptive</option>
+                <option value="FIXED">Fixed Amount</option>
+                <option value="ADAPTIVE">Pad to Length</option>
                 <option value="NONE">None</option>
               </select>
             </label>
             <label class="form-label" data-show-when="padding-type:ADAPTIVE">
-              <span>Pad to Length</span>
-              <input id="pad-length" class="form-input" type="number" min="1" max="128" />
-              <span class="form-help">Minimum total password length</span>
+              <span>Minimum Total Length</span>
+              <input id="pad-length" class="form-input" type="number" min="1" max="128" placeholder="20" />
+              <span class="form-help">Pad password to at least this many characters</span>
             </label>
 
             <div class="form-row">
@@ -212,10 +142,10 @@
             </div>
 
             <label class="form-label">
-              <span>Padding Character Type</span>
+              <span>Padding Symbol Type</span>
               <select id="padding-char-type" class="form-select" data-key="padding-char-type">
-                <option value="RANDOM">Random</option>
-                <option value="FIXED">Fixed</option>
+                <option value="RANDOM">Random Symbol</option>
+                <option value="FIXED">Fixed Character</option>
               </select>
             </label>
             <label class="form-label" data-show-when="padding-char-type:FIXED">
@@ -223,26 +153,69 @@
               <input id="padding-char" class="form-input" type="text" maxlength="1" placeholder="!" />
             </label>
             <label class="form-label" data-show-when="padding-char-type:RANDOM">
-              <span>Padding Alphabet</span>
+              <span>Padding Symbol Set</span>
               <input id="padding-alphabet" class="form-input" type="text" placeholder="!@#$%^&*" />
             </label>
-          </div>
 
-          <div class="card">
-            <h2 class="card__title">Symbol Alphabet</h2>
             <label class="form-label">
-              <span>Custom Symbol Set</span>
+              <span>Symbol Alphabet</span>
               <input id="symbol-alphabet" class="form-input" type="text" placeholder="!@#$%^&*()-_=+[]{}|;:,.<>?" />
-              <span class="form-help">Characters to use for padding symbols</span>
+              <span class="form-help">Available symbols for padding</span>
             </label>
           </div>
 
           <div class="card">
-            <h2 class="card__title">Dictionary</h2>
+            <h2 class="card__title">Other Options</h2>
             <label class="form-label">
-              <span>Word Dictionary</span>
+              <span>Dictionary</span>
               <select id="dictionary" class="form-select"></select>
             </label>
+            <label class="form-checkbox">
+              <input id="enable-insertion" type="checkbox" />
+              <span>Enable right-click password insertion</span>
+            </label>
+            <p class="form-help">Allow inserting passwords via context menu when right-clicking on input fields</p>
+          </div>
+
+          <div class="card">
+            <div class="button-group">
+              <button id="save-settings" class="btn-primary" type="button">Save Settings</button>
+              <button id="reset-settings" class="btn-secondary" type="button">Reset to Defaults</button>
+            </div>
+            <div id="settings-status" class="status-message" role="status" hidden></div>
+          </div>
+        </section>
+
+        <!-- Presets Panel -->
+        <section id="panel-presets" class="panel" role="tabpanel" aria-labelledby="tab-presets" hidden>
+          <div class="card">
+            <h2 class="card__title">Save Current Settings as New Preset</h2>
+            <p class="form-help">This will save all your current settings from the Settings tab as a new preset.</p>
+            <div class="form-group">
+              <label class="form-label">
+                <span>Preset Name</span>
+                <input id="new-preset-name" class="form-input" type="text" placeholder="My Custom Preset" />
+              </label>
+              <label class="form-label">
+                <span>Description (Optional)</span>
+                <input id="new-preset-desc" class="form-input" type="text" placeholder="Describe this preset..." />
+              </label>
+              <button id="save-preset" class="btn-primary" type="button">Save as New Preset</button>
+              <div id="save-preset-status" class="status-message" role="status" hidden></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 class="card__title">Your Custom Presets</h2>
+            <div id="custom-presets-list" class="presets-list">
+              <p class="empty-message">No custom presets yet. Create one above!</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 class="card__title">Built-in Presets</h2>
+            <p class="form-help">Built-in presets are read-only. To customize one, select it in Settings, make your changes, and save as a new preset above.</p>
+            <div id="builtin-presets-list" class="presets-list"></div>
           </div>
         </section>
       </div>
