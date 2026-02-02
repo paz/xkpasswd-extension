@@ -8,175 +8,91 @@
   </head>
   <body>
     <main class="popup">
-      <header class="popup__header">
-        <div>
-          <p class="eyebrow">XKPasswd Extension</p>
-          <h1>Secure, memorable passwords</h1>
-          <p class="subhead">Fast, accessible controls that match your browser’s look and feel.</p>
+      <!-- Header -->
+      <header class="header">
+        <div class="header__content">
+          <h1 class="header__title">XKPasswd</h1>
+          <p class="header__subtitle">Generate secure, memorable passwords</p>
         </div>
-        <div class="header-actions">
-          <button id="open-options" class="ghost" type="button">Options</button>
-        </div>
+        <button id="open-options" class="btn-icon" type="button" aria-label="Open settings" title="Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/>
+            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+          </svg>
+        </button>
       </header>
 
-      <section class="card" aria-labelledby="generate-title">
-        <div class="card-header">
-          <div>
-            <h2 id="generate-title">Generate</h2>
-            <p class="helper">Pick a preset and adjust the essentials before generating.</p>
-          </div>
-          <button id="generate" class="primary" type="button">Generate</button>
+      <!-- Quick Generate Section -->
+      <section class="quick-generate">
+        <div class="preset-selector">
+          <label for="preset" class="preset-label">
+            <span class="label-text">Preset</span>
+            <select id="preset" class="select-input"></select>
+          </label>
+          <p id="preset-description" class="preset-description"></p>
         </div>
-        <form id="quick-form" class="grid">
-          <label>
-            Preset
-            <select id="preset"></select>
+
+        <div class="quick-options">
+          <label class="quick-option">
+            <span>Passwords</span>
+            <input id="num-passwords" class="quick-input" type="number" min="1" max="20" />
           </label>
-          <label>
-            # Passwords
-            <input id="num-passwords" type="number" min="1" max="20" />
+          <label class="quick-option">
+            <span>Words</span>
+            <input id="num-words" class="quick-input" type="number" min="2" max="10" />
           </label>
-          <label>
-            Words per password
-            <input id="num-words" type="number" min="2" max="10" />
-          </label>
-          <label>
-            Case transform
-            <select id="case-transform">
-              <option value="NONE">None</option>
-              <option value="CAPITALISE">Capitalise</option>
-              <option value="INVERT">Invert</option>
-              <option value="RANDOM">Random</option>
-              <option value="ALTERNATE">Alternate</option>
-            </select>
-          </label>
-          <label>
-            Separator type
-            <select id="separator-type" data-key="separator-type">
-              <option value="RANDOM">Random</option>
-              <option value="FIXED">Fixed</option>
-              <option value="NONE">None</option>
-            </select>
-          </label>
-          <label class="field" data-show-when="separator-type:FIXED">
-            Separator character
-            <input id="separator-character" type="text" maxlength="1" />
-          </label>
-          <label class="field" data-show-when="separator-type:RANDOM">
-            Separator alphabet (optional)
-            <input id="separator-alphabet" type="text" />
-          </label>
-        </form>
-        <div class="preset-meta">
-          <p id="preset-description" class="helper"></p>
-          <button id="manage-presets" class="link-button" type="button">Manage presets</button>
+        </div>
+
+        <button id="generate" class="btn-primary" type="button">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13.5 2.5v5h-5M2.5 13.5v-5h5M13 3a6.5 6.5 0 11-10 5.5" />
+          </svg>
+          <span>Generate Passwords</span>
+        </button>
+      </section>
+
+      <!-- Password Results -->
+      <section class="results" aria-labelledby="results-title">
+        <div class="results__header">
+          <h2 id="results-title" class="results__title">Generated Passwords</h2>
+          <button id="copy-all" class="btn-secondary btn-sm" type="button" hidden>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="5" y="5" width="9" height="9" rx="1" />
+              <path d="M2 11V3a1 1 0 011-1h8" />
+            </svg>
+            <span>Copy All</span>
+          </button>
+        </div>
+
+        <div id="empty-state" class="empty-state">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M24 12v24M12 24h24" />
+          </svg>
+          <p>Click "Generate Passwords" to begin</p>
+        </div>
+
+        <ul id="password-list" class="password-list" hidden></ul>
+
+        <!-- Strength Indicator -->
+        <div id="strength-indicator" class="strength-indicator" hidden>
+          <div class="strength-indicator__header">
+            <span class="strength-indicator__label">Password Strength</span>
+            <span id="strength-label" class="strength-indicator__value"></span>
+          </div>
+          <div class="strength-indicator__bar">
+            <div id="strength-bar-fill" class="strength-indicator__fill"></div>
+          </div>
+          <div class="strength-indicator__details">
+            <span id="entropy-display" class="strength-detail"></span>
+            <span id="crack-time" class="strength-detail"></span>
+          </div>
         </div>
       </section>
 
-      <section class="card" aria-labelledby="advanced-title">
-        <div class="card-header">
-          <div>
-            <h2 id="advanced-title">Advanced settings</h2>
-            <p class="helper">Fine tune word rules, padding, and output behaviors.</p>
-          </div>
-          <p id="validation" class="validation" role="status"></p>
-        </div>
-        <details class="details" open>
-          <summary>Words &amp; dictionary</summary>
-          <div class="details__body grid">
-            <label>
-              Word length min
-              <input id="word-min" type="number" min="3" max="20" />
-            </label>
-            <label>
-              Word length max
-              <input id="word-max" type="number" min="3" max="20" />
-            </label>
-            <label class="checkbox">
-              <span>Allow accents</span>
-              <input id="allow-accents" type="checkbox" data-key="allow-accents" />
-            </label>
-            <label>
-              Dictionary
-              <select id="dictionary"></select>
-            </label>
-          </div>
-        </details>
-        <details class="details">
-          <summary>Padding &amp; symbols</summary>
-          <div class="details__body grid">
-            <label>
-              Padding type
-              <select id="padding-type" data-key="padding-type">
-                <option value="FIXED">Fixed</option>
-                <option value="ADAPTIVE">Adaptive</option>
-                <option value="NONE">None</option>
-              </select>
-            </label>
-            <label class="field" data-show-when="padding-type:ADAPTIVE">
-              Pad to length
-              <input id="pad-length" type="number" min="1" max="128" />
-            </label>
-            <label>
-              Digits before
-              <input id="digits-before" type="number" min="0" max="10" />
-            </label>
-            <label>
-              Digits after
-              <input id="digits-after" type="number" min="0" max="10" />
-            </label>
-            <label>
-              Symbols before
-              <input id="padding-before" type="number" min="0" max="10" />
-            </label>
-            <label>
-              Symbols after
-              <input id="padding-after" type="number" min="0" max="10" />
-            </label>
-            <label>
-              Padding character type
-              <select id="padding-char-type" data-key="padding-char-type">
-                <option value="RANDOM">Random</option>
-                <option value="FIXED">Fixed</option>
-              </select>
-            </label>
-            <label class="field" data-show-when="padding-char-type:FIXED">
-              Padding character
-              <input id="padding-char" type="text" maxlength="1" />
-            </label>
-            <label class="field" data-show-when="padding-char-type:RANDOM">
-              Padding alphabet (optional)
-              <input id="padding-alphabet" type="text" />
-            </label>
-            <label>
-              Symbol alphabet
-              <input id="symbol-alphabet" type="text" />
-            </label>
-          </div>
-        </details>
-        <details class="details">
-          <summary>Output &amp; insertion</summary>
-          <div class="details__body grid">
-            <label class="checkbox">
-              <span>Enable right-click insertion</span>
-              <input id="enable-insertion" type="checkbox" data-key="enable-insertion" />
-            </label>
-          </div>
-        </details>
-      </section>
+      <!-- Validation Message -->
+      <div id="validation" class="validation-message" role="alert" hidden></div>
 
-      <section class="card" aria-labelledby="results-title">
-        <div class="popup__results-header">
-          <div>
-            <h2 id="results-title">Passwords</h2>
-            <p class="helper">Copy one or grab them all at once.</p>
-          </div>
-          <button id="copy-all" class="ghost" type="button">Copy all</button>
-        </div>
-        <p id="empty-state" class="helper">Generate passwords to see results here.</p>
-        <ul id="password-list" class="password-list"></ul>
-      </section>
-
+      <!-- Toast Notification -->
       <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
     </main>
 

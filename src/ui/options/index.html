@@ -3,233 +3,223 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>XKPasswd Options</title>
+    <title>XKPasswd Settings</title>
     <link rel="stylesheet" href="./options.css" />
   </head>
   <body>
-    <main class="options">
-      <header class="hero">
+    <div class="container">
+      <!-- Header -->
+      <header class="header">
         <div>
-          <p class="eyebrow">XKPasswd Extension</p>
-          <h1>Options &amp; Presets</h1>
-          <p class="subhead">
-            Match the xkpasswd web experience with fast, accessible controls that sync across your browser.
-          </p>
-        </div>
-        <div class="hero-meta">
-          <div class="meta-card">
-            <span>Active preset</span>
-            <select id="preset-select" aria-label="Active preset"></select>
-            <button id="apply-preset" type="button" class="primary">Apply preset</button>
-          </div>
-          <div class="meta-card">
-            <span>Quick actions</span>
-            <button id="save-config" type="button" class="primary">Save settings</button>
-            <button id="reset-config" type="button" class="ghost">Reset defaults</button>
-            <p id="validation" class="validation" role="status"></p>
-          </div>
+          <h1 class="header__title">XKPasswd Settings</h1>
+          <p class="header__subtitle">Configure password generation and manage presets</p>
         </div>
       </header>
 
-      <section class="card" aria-labelledby="preset-title">
-        <div class="card-header">
-          <div>
-            <h2 id="preset-title">Presets</h2>
-            <p class="helper">Save and share presets without overwriting your full configuration.</p>
-          </div>
-        </div>
-        <div class="grid">
-          <label>
-            Save current as preset
-            <input id="preset-name" type="text" placeholder="Preset name" />
-          </label>
-          <label>
-            Description
-            <input id="preset-description" type="text" placeholder="Optional description" />
-          </label>
-          <button id="save-preset" type="button" class="primary">Save preset</button>
-        </div>
-        <div class="grid">
-          <label>
-            Manage custom presets
-            <select id="custom-preset-select"></select>
-          </label>
-          <label>
-            Rename preset
-            <input id="rename-preset" type="text" placeholder="New name" />
-          </label>
-          <button id="rename-button" type="button" class="ghost">Rename</button>
-          <button id="delete-button" type="button" class="danger">Delete</button>
-        </div>
-        <div class="split">
-          <div>
-            <h3>Export preset</h3>
-            <label>
-              Preset to export
-              <select id="preset-export-select"></select>
-            </label>
-            <textarea id="preset-json" rows="6" spellcheck="false" aria-label="Preset JSON"></textarea>
-            <div class="actions">
-              <button id="export-preset" type="button" class="primary">Export JSON</button>
-              <button id="download-preset" type="button" class="ghost">Download file</button>
+      <!-- Tabs -->
+      <nav class="tabs" role="tablist">
+        <button id="tab-settings" class="tab" role="tab" aria-selected="true" aria-controls="panel-settings">
+          Settings
+        </button>
+        <button id="tab-presets" class="tab" role="tab" aria-selected="false" aria-controls="panel-presets">
+          Presets
+        </button>
+      </nav>
+
+      <!-- Tab Panels -->
+      <div class="panels">
+        <!-- Settings Panel -->
+        <section id="panel-settings" class="panel" role="tabpanel" aria-labelledby="tab-settings">
+          <div class="card">
+            <h2 class="card__title">Active Preset</h2>
+            <div class="form-group">
+              <label class="form-label">
+                <span>Current Preset</span>
+                <select id="preset-select" class="form-select"></select>
+              </label>
+              <p id="preset-desc" class="form-help"></p>
             </div>
           </div>
-          <div>
-            <h3>Import preset</h3>
-            <label class="file-input">
-              Choose preset JSON file
-              <input id="preset-file" type="file" accept="application/json,.json" />
-            </label>
-            <textarea id="preset-import" rows="6" spellcheck="false" aria-label="Preset JSON to import"></textarea>
-            <div class="actions">
-              <button id="import-preset" type="button" class="primary">Import preset</button>
-              <button id="clear-preset" type="button" class="ghost">Clear</button>
+
+          <div class="card">
+            <h2 class="card__title">Generation Options</h2>
+            <div class="form-row">
+              <label class="form-label">
+                <span>Passwords to Generate</span>
+                <input id="num-passwords" class="form-input" type="number" min="1" max="20" />
+              </label>
+              <label class="form-label">
+                <span>Words per Password</span>
+                <input id="num-words" class="form-input" type="number" min="2" max="10" />
+              </label>
             </div>
-            <p id="preset-status" class="validation" role="status"></p>
           </div>
-        </div>
-      </section>
 
-      <section class="card" aria-labelledby="settings-title">
-        <div class="card-header">
-          <div>
-            <h2 id="settings-title">Generation settings</h2>
-            <p class="helper">Tune word selection, separators, padding, and output behavior.</p>
+          <div class="card">
+            <h2 class="card__title">Word Options</h2>
+            <div class="form-row">
+              <label class="form-label">
+                <span>Min Word Length</span>
+                <input id="word-min" class="form-input" type="number" min="3" max="20" />
+              </label>
+              <label class="form-label">
+                <span>Max Word Length</span>
+                <input id="word-max" class="form-input" type="number" min="3" max="20" />
+              </label>
+            </div>
+            <label class="form-label">
+              <span>Case Transform</span>
+              <select id="case-transform" class="form-select">
+                <option value="NONE">None</option>
+                <option value="CAPITALISE">Capitalize First Letter</option>
+                <option value="INVERT">Invert Case</option>
+                <option value="RANDOM">Random Case</option>
+                <option value="ALTERNATE">Alternate Case</option>
+              </select>
+            </label>
+            <label class="form-checkbox">
+              <input id="allow-accents" type="checkbox" />
+              <span>Allow accented characters</span>
+            </label>
           </div>
-        </div>
-        <form id="config-form" class="form-grid">
-          <label>
-            Password count
-            <input id="num-passwords" type="number" min="1" max="50" />
-          </label>
-          <label>
-            Words per password
-            <input id="num-words" type="number" min="2" max="10" />
-          </label>
-          <label>
-            Word length min
-            <input id="word-min" type="number" min="3" max="20" />
-          </label>
-          <label>
-            Word length max
-            <input id="word-max" type="number" min="3" max="20" />
-          </label>
-          <label>
-            Case transform
-            <select id="case-transform">
-              <option value="NONE">None</option>
-              <option value="CAPITALISE">Capitalise</option>
-              <option value="INVERT">Invert</option>
-              <option value="RANDOM">Random</option>
-              <option value="ALTERNATE">Alternate</option>
-            </select>
-          </label>
-          <label>
-            Separator type
-            <select id="separator-type">
-              <option value="RANDOM">Random</option>
-              <option value="FIXED">Fixed</option>
-              <option value="NONE">None</option>
-            </select>
-          </label>
-          <label>
-            Separator character
-            <input id="separator-char" type="text" maxlength="1" />
-          </label>
-          <label>
-            Separator alphabet (optional)
-            <input id="separator-alphabet" type="text" />
-          </label>
-          <label>
-            Padding type
-            <select id="padding-type">
-              <option value="FIXED">Fixed</option>
-              <option value="ADAPTIVE">Adaptive</option>
-              <option value="NONE">None</option>
-            </select>
-          </label>
-          <label>
-            Pad to length (adaptive)
-            <input id="pad-length" type="number" min="1" max="128" />
-          </label>
-          <label>
-            Padding character type
-            <select id="padding-char-type">
-              <option value="RANDOM">Random</option>
-              <option value="FIXED">Fixed</option>
-            </select>
-          </label>
-          <label>
-            Padding character
-            <input id="padding-char" type="text" maxlength="1" />
-          </label>
-          <label>
-            Padding alphabet (optional)
-            <input id="padding-alphabet" type="text" />
-          </label>
-          <label>
-            Digits before
-            <input id="digits-before" type="number" min="0" max="10" />
-          </label>
-          <label>
-            Digits after
-            <input id="digits-after" type="number" min="0" max="10" />
-          </label>
-          <label>
-            Padding before
-            <input id="padding-before" type="number" min="0" max="10" />
-          </label>
-          <label>
-            Padding after
-            <input id="padding-after" type="number" min="0" max="10" />
-          </label>
-          <label>
-            Symbol alphabet
-            <input id="symbol-alphabet" type="text" />
-          </label>
-          <label class="inline">
-            Allow accents
-            <input id="allow-accents" type="checkbox" />
-          </label>
-          <label class="inline">
-            Enable insertion
-            <input id="enable-insertion" type="checkbox" />
-          </label>
-          <label>
-            Dictionary
-            <select id="dictionary"></select>
-          </label>
-          <p id="dictionary-note" class="helper"></p>
-        </form>
-      </section>
 
-      <section class="card" aria-labelledby="config-title">
-        <div class="card-header">
-          <div>
-            <h2 id="config-title">Configuration import / export</h2>
-            <p class="helper">Move the entire settings bundle between devices.</p>
+          <div class="card">
+            <h2 class="card__title">Separators</h2>
+            <label class="form-label">
+              <span>Separator Type</span>
+              <select id="separator-type" class="form-select" data-key="separator-type">
+                <option value="RANDOM">Random Symbol</option>
+                <option value="FIXED">Fixed Character</option>
+                <option value="NONE">None</option>
+              </select>
+            </label>
+            <label class="form-label" data-show-when="separator-type:FIXED">
+              <span>Separator Character</span>
+              <input id="separator-char" class="form-input" type="text" maxlength="1" placeholder="-" />
+            </label>
+            <label class="form-label" data-show-when="separator-type:RANDOM">
+              <span>Separator Symbol Set</span>
+              <input id="separator-alphabet" class="form-input" type="text" placeholder="!@#$%^&*" />
+            </label>
           </div>
-        </div>
-        <textarea id="config-json" rows="6" spellcheck="false"></textarea>
-        <div class="actions">
-          <button id="export-config" type="button" class="primary">Export JSON</button>
-          <button id="import-config" type="button" class="ghost">Import JSON</button>
-        </div>
-        <p id="import-status" class="validation" role="status"></p>
-      </section>
 
-      <section class="card" aria-labelledby="about-title">
-        <div class="card-header">
-          <div>
-            <h2 id="about-title">About</h2>
+          <div class="card">
+            <h2 class="card__title">Padding & Symbols</h2>
+            <label class="form-label">
+              <span>Padding Type</span>
+              <select id="padding-type" class="form-select" data-key="padding-type">
+                <option value="FIXED">Fixed Amount</option>
+                <option value="ADAPTIVE">Pad to Length</option>
+                <option value="NONE">None</option>
+              </select>
+            </label>
+            <label class="form-label" data-show-when="padding-type:ADAPTIVE">
+              <span>Minimum Total Length</span>
+              <input id="pad-length" class="form-input" type="number" min="1" max="128" placeholder="20" />
+              <span class="form-help">Pad password to at least this many characters</span>
+            </label>
+
+            <div class="form-row">
+              <label class="form-label">
+                <span>Digits Before</span>
+                <input id="digits-before" class="form-input" type="number" min="0" max="10" />
+              </label>
+              <label class="form-label">
+                <span>Digits After</span>
+                <input id="digits-after" class="form-input" type="number" min="0" max="10" />
+              </label>
+            </div>
+
+            <div class="form-row">
+              <label class="form-label">
+                <span>Symbols Before</span>
+                <input id="padding-before" class="form-input" type="number" min="0" max="10" />
+              </label>
+              <label class="form-label">
+                <span>Symbols After</span>
+                <input id="padding-after" class="form-input" type="number" min="0" max="10" />
+              </label>
+            </div>
+
+            <label class="form-label">
+              <span>Padding Symbol Type</span>
+              <select id="padding-char-type" class="form-select" data-key="padding-char-type">
+                <option value="RANDOM">Random Symbol</option>
+                <option value="FIXED">Fixed Character</option>
+              </select>
+            </label>
+            <label class="form-label" data-show-when="padding-char-type:FIXED">
+              <span>Padding Character</span>
+              <input id="padding-char" class="form-input" type="text" maxlength="1" placeholder="!" />
+            </label>
+            <label class="form-label" data-show-when="padding-char-type:RANDOM">
+              <span>Padding Symbol Set</span>
+              <input id="padding-alphabet" class="form-input" type="text" placeholder="!@#$%^&*" />
+            </label>
+
+            <label class="form-label">
+              <span>Symbol Alphabet</span>
+              <input id="symbol-alphabet" class="form-input" type="text" placeholder="!@#$%^&*()-_=+[]{}|;:,.<>?" />
+              <span class="form-help">Available symbols for padding</span>
+            </label>
           </div>
-        </div>
-        <p>
-          XKPasswd uses the official <code>xkpasswd-js</code> library by Bartificer to generate
-          passwords completely offline.
-        </p>
-      </section>
-    </main>
+
+          <div class="card">
+            <h2 class="card__title">Other Options</h2>
+            <label class="form-label">
+              <span>Dictionary</span>
+              <select id="dictionary" class="form-select"></select>
+            </label>
+            <label class="form-checkbox">
+              <input id="enable-insertion" type="checkbox" />
+              <span>Enable right-click password insertion</span>
+            </label>
+            <p class="form-help">Allow inserting passwords via context menu when right-clicking on input fields</p>
+          </div>
+
+          <div class="card">
+            <div class="button-group">
+              <button id="save-settings" class="btn-primary" type="button">Save Settings</button>
+              <button id="reset-settings" class="btn-secondary" type="button">Reset to Defaults</button>
+            </div>
+            <div id="settings-status" class="status-message" role="status" hidden></div>
+          </div>
+        </section>
+
+        <!-- Presets Panel -->
+        <section id="panel-presets" class="panel" role="tabpanel" aria-labelledby="tab-presets" hidden>
+          <div class="card">
+            <h2 class="card__title">Save Current Settings as New Preset</h2>
+            <p class="form-help">This will save all your current settings from the Settings tab as a new preset.</p>
+            <div class="form-group">
+              <label class="form-label">
+                <span>Preset Name</span>
+                <input id="new-preset-name" class="form-input" type="text" placeholder="My Custom Preset" />
+              </label>
+              <label class="form-label">
+                <span>Description (Optional)</span>
+                <input id="new-preset-desc" class="form-input" type="text" placeholder="Describe this preset..." />
+              </label>
+              <button id="save-preset" class="btn-primary" type="button">Save as New Preset</button>
+              <div id="save-preset-status" class="status-message" role="status" hidden></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 class="card__title">Your Custom Presets</h2>
+            <div id="custom-presets-list" class="presets-list">
+              <p class="empty-message">No custom presets yet. Create one above!</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 class="card__title">Built-in Presets</h2>
+            <p class="form-help">Built-in presets are read-only. To customize one, select it in Settings, make your changes, and save as a new preset above.</p>
+            <div id="builtin-presets-list" class="presets-list"></div>
+          </div>
+        </section>
+      </div>
+    </div>
 
     <script type="module" src="./options.ts"></script>
   </body>

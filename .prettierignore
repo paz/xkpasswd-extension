@@ -1,0 +1,6 @@
+dist/
+node_modules/
+vendor/
+*.md
+pnpm-lock.yaml
+package-lock.json
