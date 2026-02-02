@@ -15,9 +15,9 @@
           <p class="header__subtitle">Generate secure, memorable passwords</p>
         </div>
         <button id="open-options" class="btn-icon" type="button" aria-label="Open settings" title="Settings">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="10" cy="10" r="3" />
-            <path d="M10 2v2m0 12v2M2 10h2m12 0h2m-2.1-5.9l-1.4 1.4m-9.8 9.8l-1.4 1.4m12.6 0l-1.4-1.4M4.6 5.4L3.2 4" />
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="10" cy="10" r="2.5" />
+            <path d="M10 1v2m0 14v2M19 10h-2M3 10H1m15.5-6.5l-1.4 1.4m-11.2 11.2l-1.4 1.4m14.1 0l-1.4-1.4M4.9 5.9L3.5 4.5" />
           </svg>
         </button>
       </header>
@@ -30,6 +30,17 @@
             <select id="preset" class="select-input"></select>
           </label>
           <p id="preset-description" class="preset-description"></p>
+        </div>
+
+        <div class="quick-options">
+          <label class="quick-option">
+            <span>Passwords</span>
+            <input id="num-passwords" class="quick-input" type="number" min="1" max="20" />
+          </label>
+          <label class="quick-option">
+            <span>Words</span>
+            <input id="num-words" class="quick-input" type="number" min="2" max="10" />
+          </label>
         </div>
 
         <button id="generate" class="btn-primary" type="button">

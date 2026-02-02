@@ -10,6 +10,10 @@ const elements = {
   presetSelect: document.querySelector<HTMLSelectElement>('#preset')!,
   presetDescription: document.querySelector<HTMLParagraphElement>('#preset-description')!,
 
+  // Quick options
+  numPasswordsInput: document.querySelector<HTMLInputElement>('#num-passwords')!,
+  numWordsInput: document.querySelector<HTMLInputElement>('#num-words')!,
+
   // Generate
   generateBtn: document.querySelector<HTMLButtonElement>('#generate')!,
 
@@ -202,6 +206,30 @@ async function generate() {
   }
 }
 
+async function saveQuickSettings() {
+  if (!currentConfig) return;
+
+  try {
+    const updated: ExtensionConfig = {
+      ...currentConfig,
+      numPasswords: parseInt(elements.numPasswordsInput.value) || 3,
+      customConfig: {
+        ...currentConfig.customConfig,
+        num_words: parseInt(elements.numWordsInput.value) || 3,
+      },
+    };
+
+    const result = await sendMessage<{config: ExtensionConfig}>('SET_CONFIG', {config: updated});
+    if (!result || !result.config) {
+      throw new Error('Failed to save settings');
+    }
+    currentConfig = result.config;
+  } catch (error) {
+    console.error('Error saving quick settings:', error);
+    showError('Failed to save settings.');
+  }
+}
+
 // ===== Event Handlers =====
 elements.openOptionsBtn.addEventListener('click', () => {
   chrome.runtime.openOptionsPage();
@@ -232,12 +260,33 @@ elements.presetSelect.addEventListener('change', async () => {
     // Update description
     elements.presetDescription.textContent = presetDescriptions.get(result.config.activePresetId) ?? '';
 
+    // Reload config to get preset values
+    const configResponse = await sendMessage<{
+      config: ExtensionConfig;
+      activeConfig: XkpasswdConfig;
+    }>('GET_CONFIG');
+
+    if (configResponse) {
+      currentConfig = configResponse.config;
+      // Update quick options with preset values
+      elements.numPasswordsInput.value = String(configResponse.config.numPasswords);
+      elements.numWordsInput.value = String(configResponse.activeConfig.num_words);
+    }
+
     // Auto-generate with new preset
     await generate();
   } catch (error) {
     console.error('Error changing preset:', error);
     showError('Failed to change preset.');
   }
+});
+
+elements.numPasswordsInput.addEventListener('change', async () => {
+  await saveQuickSettings();
+});
+
+elements.numWordsInput.addEventListener('change', async () => {
+  await saveQuickSettings();
 });
 
 // ===== Initialization =====
@@ -255,6 +304,10 @@ async function initialize() {
     }
 
     currentConfig = response.config;
+
+    // Update quick options
+    elements.numPasswordsInput.value = String(response.config.numPasswords);
+    elements.numWordsInput.value = String(response.activeConfig.num_words);
 
     // Then load presets
     await loadPresets();
